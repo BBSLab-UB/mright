@@ -68,6 +68,7 @@ for suj in todo_dicoms:
         continue
 
 # .bidsignore file in case error_heudiconv.txt is created
-if os.path.exists(bids_path, ".bidsignore") == False:
-    with open(os.path.join(bids_path, ".bidsignore"), 'a') as f:
-                f.write('error_heudiconv.txt\n')
+if os.path.exists(os.path.join(bids_path, ".bidsignore")) == False:
+    if os.path.exists(os.path.join(bids_path, "error_heudiconv.txt")) == True:
+        with open(os.path.join(bids_path, ".bidsignore"), 'a') as f:
+                    f.write('error_heudiconv.txt\n')
