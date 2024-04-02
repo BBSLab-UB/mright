@@ -3,7 +3,7 @@
 ########      BBSLab Mar 2024       ########
 ############################################
 
-# import libraries 
+# import libraries
 import os
 from pathlib import Path
 import pydicom
