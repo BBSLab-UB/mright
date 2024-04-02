@@ -5,6 +5,4 @@ channels:
   - defaults
 dependencies:
   - python=3.8
-  - dcm2niix=1.0.20240202=h181d51b_0
-  - heudiconv=1.1.0=pyhd8ed1ab_0
   - pydicom=2.4.4=pyhd8ed1ab_0
