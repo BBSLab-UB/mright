@@ -44,6 +44,9 @@ if (list_minus_dir != set()) is True:                                           
 bids = [s[4:] for s in os.listdir(bids_path) if s[4:].isdigit() and os.path.isdir(os.path.join(bids_path, s, "ses-{}".format(ses)))]
 intersection_bids_list = set(dicoms_in_list).intersection(bids)
 
+if intersection_bids_list == set():                                             # If there isn't any subject in both list and bids_path
+    todo_dicoms = dicoms_in_list
+
 while (intersection_bids_list != set()) is True:                                # Some subject is both in list and bids_path
     overwrite_bids = input(str(intersection_bids_list) +
                            " already in BIDS directory, do you want to overwrite? (Y/N) ").upper()
