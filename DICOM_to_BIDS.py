@@ -10,7 +10,7 @@ import shutil
 
 # input paths
 # remove '' from string
-dicoms_path = os.path.normpath(input(r"Please, enter your DICOM source directory path (add TP folder to path if needed): ").replace(" ","")) # /institut directory
+dicoms_path = os.path.normpath(input(r"Please, enter your DICOM source directory path (add TP folder to path if needed): ").replace("'","").replace(" ","")) # /institut directory
 dicoms_list_txt = os.path.normpath(input(r"Please, enter your list of DICOMS file path: ").replace("'","").replace(" ",""))         # copy subjects folders to a .txt --> a subject folder path or ID per line
 bids_path = os.path.normpath(input(r"Please, enter your BIDS destination directory path: ").replace("'","").replace(" ",""))    # recommended: local folder at /home, folder must be created before running the script
 heuristic_file_path = os.path.normpath(input(r"Please, enter your heuristic file path: ").replace("'","").replace(" ",""))
