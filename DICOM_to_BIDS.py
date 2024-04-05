@@ -11,14 +11,23 @@ import shutil
 # input paths
 # remove '' from string
 dicoms_path = os.path.normpath(input(r"Please, enter your DICOM source directory path (add TP folder to path if needed): ").replace(" ","")) # /institut directory
-dicoms_list = os.path.normpath(input(r"Please, enter your list of DICOMS file path: ").replace("'","").replace(" ",""))         # copy subjects folders to a .txt --> a subject ID per line
+dicoms_list_txt = os.path.normpath(input(r"Please, enter your list of DICOMS file path: ").replace("'","").replace(" ",""))         # copy subjects folders to a .txt --> a subject folder path or ID per line
 bids_path = os.path.normpath(input(r"Please, enter your BIDS destination directory path: ").replace("'","").replace(" ",""))    # recommended: local folder at /home, folder must be created before running the script
 heuristic_file_path = os.path.normpath(input(r"Please, enter your heuristic file path: ").replace("'","").replace(" ",""))
 ses = input(r"Please, enter your session number: ")
 
 #selecting DICOMS from list
-with open(dicoms_list) as file:
-    dicoms_in_list = [dicom_id.rstrip() for dicom_id in file]
+def get_dicoms_in_list(dicoms_list):
+    with open(dicoms_list) as file:
+        list_of_dicoms = []
+        for dicom_id_path in file:
+            dicom_id_path = dicom_id_path.rstrip()
+            if dicom_id_path[-1] == '/':
+                dicom_id_path = dicom_id_path[:-1]
+            dicom_id = os.path.basename(dicom_id_path)
+            list_of_dicoms.append(dicom_id)
+    return list_of_dicoms
+dicoms_in_list = get_dicoms_in_list(dicoms_list_txt)
 
 # list of DICOMS in input directory
 dicoms_in_dir = [s for s in os.listdir(dicoms_path)]
