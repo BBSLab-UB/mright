@@ -31,13 +31,13 @@ def infotodict(seqinfo):
     
     rest_bold_ap=create_key('sub-{subject}/{session}/func/sub-{subject}_{session}_task-rest_dir-ap_run-{item:02d}_bold')
     rest_sbref_ap=create_key('sub-{subject}/{session}/func/sub-{subject}_{session}_task-rest_dir-ap_run-{item:02d}_sbref')
-    rest_sefm_ap=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-func_dir-ap_run-{item:02d}_sefm')
-    rest_sefm_pa=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-func_dir-pa_run-{item:02d}_sefm')
+    rest_sefm_ap=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-restsefm_dir-ap_run-{item:02d}_epi')
+    rest_sefm_pa=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-restsefm_dir-pa_run-{item:02d}_epi')
 
     dwi_dir_ap=create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_dir-ap_run-{item:02d}_dwi') 
     dwi_dir_pa=create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_dir-pa_run-{item:02d}_dwi') 
-    dwi_sefm_ap=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-dwi_dir-ap_run-{item:02d}_sefm')
-    dwi_sefm_pa=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-dwi_dir-pa_run-{item:02d}_sefm')
+    dwi_sefm_ap=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-dwisefm_dir-ap_run-{item:02d}_epi')
+    dwi_sefm_pa=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-dwisefm_dir-pa_run-{item:02d}_epi')
     
     # dictionary: list of DICOMs for each BIDS file
     info =  {
