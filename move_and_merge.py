@@ -40,7 +40,7 @@ others_local = [other for other in os.listdir(local_bids_path) if other[:4] != "
 uniques_local = [unique for unique in others_local if (unique not in [".heudiconv", ".bidsignore", "participants.tsv", "error_heudiconv.txt"])]
 
 for unique_file in uniques_local:
-    if unique_file in os.listdir(destination_bids_path) == False:
+    if (unique_file in os.listdir(destination_bids_path)) == False:
         shutil.move(os.path.join(local_bids_path, unique_file), os.path.join(destination_bids_path, unique_file))
         print('{} file was SUCCESSFULLY MOVED to destination folder'.format(unique_file))
     else:
@@ -48,7 +48,9 @@ for unique_file in uniques_local:
         
 # merge editable files
 def merge_files(source_file_path, destination_file_path):
-    if os.path.exists(source_file_path) == True:   
+    if os.path.exists(source_file_path) == True:
+        with open(destination_file_path, "a") as dest:
+            pass
         with open(destination_file_path, "r+") as dest:
             dest_lines = [line.rstrip() for line in dest]
             with open(source_file_path, 'r') as src:
@@ -66,10 +68,15 @@ merge_files(os.path.join(local_bids_path,'error_heudiconv.txt'), os.path.join(de
 # merge participants.tsv
 
 df_participants_src = pd.read_csv(os.path.join(local_bids_path,"participants.tsv"), sep='\t')
-df_participants_des = pd.read_csv(os.path.join(destination_bids_path,"participants.tsv"), sep='\t')
-new_participants_des = pd.concat((df_participants_des, df_participants_src)).groupby('participant_id').first().reset_index() 
-new_participants_des.to_csv(os.path.join(destination_bids_path,"participants.tsv"), sep="\t",
-                  header=True, index=False, na_rep="n/a")
 
-if df_participants_des != new_participants_des:
-    print("participants.tsv was successfully updated")
+if os.path.exists(os.path.join(destination_bids_path,"participants.tsv")) == True:   
+    df_participants_des = pd.read_csv(os.path.join(destination_bids_path,"participants.tsv"), sep='\t')
+    new_participants_des = pd.concat((df_participants_des, df_participants_src)).groupby('participant_id').first().reset_index() 
+    new_participants_des.to_csv(os.path.join(destination_bids_path,"participants.tsv"), sep="\t",
+                      header=True, index=False, na_rep="n/a")
+    if df_participants_des.equals(new_participants_des) == False:
+        print("participants.tsv was successfully updated")
+else:
+    new_participants_des = df_participants_src
+    new_participants_des.to_csv(os.path.join(destination_bids_path,"participants.tsv"), sep="\t",
+                      header=True, index=False, na_rep="n/a")
