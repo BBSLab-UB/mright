@@ -15,7 +15,7 @@ list_subjects=os.listdir(dicoms_to_order_folder)
 # check folders and maintain only those which are not ordered. Less than 7 folders per subject AND more than 0 unsorted files?
 list_subjects_to_do = [s for s in list_subjects if sum([1 for file in os.listdir(os.path.join(dicoms_to_order_folder, s)) if os.path.isdir(os.path.join(dicoms_to_order_folder, s, file))])<7 and sum([1 for file in os.listdir(os.path.join(dicoms_to_order_folder, s)) if os.path.isfile(os.path.join(dicoms_to_order_folder, s, file))])>0]
 
-print(str(len(list_subjects_to_do))+" out of "+str(len(list_subjects))+" subjects found to be ordered in chosen folder: "+dicoms_to_order_folder)
+print(str(len(list_subjects_to_do))+" out of "+str(len(list_subjects))+" subjects will be sorted in chosen folder: "+dicoms_to_order_folder)
 if len(list_subjects_to_do) != 0:
     print("These subjects are: "+", ".join(list_subjects_to_do))
     
