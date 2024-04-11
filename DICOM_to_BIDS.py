@@ -14,7 +14,12 @@ dicoms_path = os.path.normpath(input(r"Please, enter your DICOM source directory
 dicoms_list_txt = os.path.normpath(input(r"Please, enter your list of DICOMS file path: ").replace("'","").replace(" ",""))         # copy subjects folders to a .txt --> a subject folder path or ID per line
 bids_path = os.path.normpath(input(r"Please, enter your BIDS destination directory path: ").replace("'","").replace(" ",""))    # recommended: local folder at /home, folder must be created before running the script
 heuristic_file_path = os.path.normpath(input(r"Please, enter your heuristic file path: ").replace("'","").replace(" ",""))
-ses = input(r"Please, enter your session number: ")
+ses = input(r"Please, enter your session label: ")
+
+if ses == "NOSESSION": # for non-longitudinal studies (heuristic file should also reflect that)
+    use_sessions = False
+else:
+    use_sessions = True
 
 #selecting DICOMS from list
 def get_dicoms_in_list(dicoms_list):
@@ -41,7 +46,12 @@ if (list_minus_dir != set()) is True:                                           
                 " subject(s) not in source directory\n")
 
 # is there any BIDS already in the bids_path? Is there any conflict? Do you want to overwrite?
-bids = [s[4:] for s in os.listdir(bids_path) if s[4:].isdigit() and os.path.isdir(os.path.join(bids_path, s, "ses-{}".format(ses)))]
+if use_sessions == True:
+    bids = [s[4:] for s in os.listdir(bids_path) if s[4:].isdigit() and os.path.isdir(os.path.join(bids_path, s, "ses-{}".format(ses)))]
+    ses_path ="ses-{}".format(ses)
+else:
+    bids = [s[4:] for s in os.listdir(bids_path) if s[4:].isdigit()]
+    
 intersection_bids_list = set(dicoms_in_list).intersection(bids)
 
 if intersection_bids_list == set():                                             # If there isn't any subject in both list and bids_path
@@ -64,18 +74,35 @@ while (intersection_bids_list != set()) is True:                                
 
 
 # heudiconv run
+
 for suj in todo_dicoms:
     try:
-        if not os.path.join("sub-{}".format(suj),"ses-{}".format(ses)) in os.listdir(bids_path):
-            print(suj)
-            command = 'heudiconv -d '+ os.path.join(dicoms_path,'{subject}','*','*.IMA') + ' -o '+ bids_path +' -f '+ heuristic_file_path +' -s '+ suj + ' -ss '+ ses +' -c dcm2niix -b --minmeta --overwrite'
-            os.system(command)
-        else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
-            with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
-                f.write(str(datetime.datetime.now()) + "\t" +suj + " already processed\n")
-           
+        # for longitudinal studies
+        # heuristic must have keys like t1w=create_key('sub-{subject}/{session}/anat/sub-{subject}_{session}_run-{item:02d}_T1w')
+        if use_sessions == True:
+            if os.path.exists(os.path.join(bids_path, "sub-{}".format(suj))) == False: os.mkdir(os.path.join(bids_path, "sub-{}".format(suj)))
+            if not ses_path in os.listdir(os.path.join(bids_path, "sub-{}".format(suj))):
+                print("Starting subject {} conversion".format(suj))
+                command = 'heudiconv -d '+ os.path.join(dicoms_path,'{subject}','*','*.IMA') + ' -o '+ bids_path +' -f '+ heuristic_file_path +' -s '+ suj + ' -ss '+ ses +' -c dcm2niix -b --minmeta --overwrite'
+                os.system(command)
+            else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
+                with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+                    print("WARNING: Subject {} has been processed before and you chose to not overwrite. Subject will be skipped. Issue logged in error_heudiconv.txt".format(suj))
+                    f.write(str(datetime.datetime.now()) + "\t" +suj + " already processed\n")
+        # for NON-longitudinal studies
+        # heuristic must have keys like t1w=create_key('sub-{subject}/anat/sub-{subject}_run-{item:02d}_T1w')        
+        else:
+            if not "sub-{}".format(suj) in os.listdir(bids_path):
+                print("Starting subject {} conversion".format(suj))
+                command = 'heudiconv -d '+ os.path.join(dicoms_path,'{subject}','*','*.IMA') + ' -o '+ bids_path +' -f '+ heuristic_file_path +' -s '+ suj +' -c dcm2niix -b --minmeta --overwrite'
+                os.system(command)
+            else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
+                with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+                    print("WARNING: Subject {} has been processed before and you chose to not overwrite. Subject will be skipped. Issue logged in error_heudiconv.txt".format(suj))
+                    f.write(str(datetime.datetime.now()) + "\t" +suj + " already processed\n")
     except:                                                                     # this could happen, especially if the script is run on Windows
         with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+            print("WARNING: Unable to process subject {}. Subject will be skipped. Issue logged in error_heudiconv.txt".format(suj))
             f.write(str(datetime.datetime.now()) + "\t" +suj + " error\n")
         continue
 
