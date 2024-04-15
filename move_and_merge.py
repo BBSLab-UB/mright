@@ -4,7 +4,6 @@
 ############################################
 
 import os
-import shutil
 import warnings
 import pandas as pd
 
@@ -25,7 +24,8 @@ def move_subs_to_destination(source, destination):
         warnings.warn('WARNING: Source subject folder {} is empty. Check if it has not been already moved'.format(source))
     for subdir in os.listdir(source):
         if (subdir in os.listdir(destination)) == False:
-            shutil.move(os.path.join(source, subdir), os.path.join(destination, subdir))
+            command_dir = "cp -r " + os.path.join(source, subdir) + " " + os.path.join(destination, subdir) + " && rm -rf " + os.path.join(source, subdir)
+            os.system(command_dir)
             print('{} subfolder was SUCCESSFULLY MOVED to {}'.format(subdir, destination))
         else:
             warnings.warn('WARNING: Subfolder {} already exists in subject folder {}. Moving was SKIPPED.'.format(subdir, destination))
@@ -46,10 +46,11 @@ uniques_local = [unique for unique in others_local if (unique not in [".heudicon
 
 for unique_file in uniques_local:
     if (unique_file in os.listdir(destination_bids_path)) == False:
-        shutil.move(os.path.join(local_bids_path, unique_file), os.path.join(destination_bids_path, unique_file))
+        command_file = "cp " + os.path.join(local_bids_path, unique_file) + " " + os.path.join(destination_bids_path, unique_file) + " && rm -f " + os.path.join(local_bids_path, unique_file)
+        os.system(command_file)
         print('{} file was SUCCESSFULLY MOVED to destination folder'.format(unique_file))
     else:
-        warnings.warn('WARNING: {} file already exists in destination folder. Moving was SKIPPED.'.format(unique_file))
+        print('INFO: {} file already exists in destination folder. Moving was SKIPPED.'.format(unique_file))
         
 # merge editable text files
 def merge_files(source_file_path, destination_file_path):
@@ -85,3 +86,7 @@ else:
     new_participants_des = df_participants_src
     new_participants_des.to_csv(os.path.join(destination_bids_path,"participants.tsv"), sep="\t",
                       header=True, index=False, na_rep="n/a")
+
+# remove local_bids_path tree
+os.system("rm -rf " + local_bids_path)
+print(local_bids_path + " local BIDS directory was SUCCESSFULLY REMOVED")
