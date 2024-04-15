@@ -9,7 +9,7 @@ from pathlib import Path
 import pydicom
 
 # input folder
-dicoms_to_order_folder = os.path.normpath(input(r"Please, enter your DICOM directory path (add TP folder to path if needed): ").replace("'",""))
+dicoms_to_order_folder = os.path.normpath(input(r"Please, enter your DICOM directory path (add TP folder to path if needed): ").replace("'","").replace(" ",""))
 list_subjects=os.listdir(dicoms_to_order_folder)
 
 # check folders and maintain only those which are not ordered. Less than 7 folders per subject AND more than 0 unsorted files?
