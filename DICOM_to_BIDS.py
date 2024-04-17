@@ -44,6 +44,7 @@ if (list_minus_dir != set()) is True:                                           
     with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:        # error log
         f.write(str(datetime.datetime.now()) + "\t" + str(list_minus_dir) +
                 " subject(s) not in source directory\n")
+    dicoms_in_list = list(set(dicoms_in_list).difference(list_minus_dir))       # missing subjects are skipped
 
 # is there any BIDS already in the bids_path? Is there any conflict? Do you want to overwrite?
 if use_sessions == True:
@@ -107,7 +108,7 @@ for subj in todo_dicoms:
                 if subdir_check != subdir_list:
                     with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
                         print("WARNING: Subject {} has been skipped because it lacks session hierarchy, despite a session was inputed. Issue logged in error_heudiconv.txt".format(subj))
-                        f.write(str(datetime.datetime.now()) + "\t" +subj + " session inputed, but there is no previous session hierarchy\n")
+                        f.write(str(datetime.datetime.now()) + "\t" + subj + " session inputed, but there is no previous session hierarchy\n")
                     continue
             if not ses_path in os.listdir(subj_path):
                 print("Starting subject {} conversion".format(subj))
@@ -116,7 +117,7 @@ for subj in todo_dicoms:
             else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
                 with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
                     print("WARNING: Subject {} has been processed before and you chose to not overwrite. Subject will be skipped. Issue logged in error_heudiconv.txt".format(subj))
-                    f.write(str(datetime.datetime.now()) + "\t" +subj + " already processed\n")
+                    f.write(str(datetime.datetime.now()) + "\t" + subj + " already processed\n")
        
         # for NON-longitudinal studies
         # heuristic must have keys like t1w=create_key('sub-{subject}/anat/sub-{subject}_run-{item:02d}_T1w')        
@@ -137,12 +138,12 @@ for subj in todo_dicoms:
             else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
                 with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
                     print("WARNING: Subject {} has been processed before and you chose to not overwrite. Subject will be skipped. Issue logged in error_heudiconv.txt".format(subj))
-                    f.write(str(datetime.datetime.now()) + "\t" +subj + " already processed\n")
+                    f.write(str(datetime.datetime.now()) + "\t" + subj + " already processed\n")
     
     except:                                                                     # this could happen, especially if the script is run on Windows
         with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
             print("WARNING: Unable to process subject {}. Subject will be skipped. Issue logged in error_heudiconv.txt".format(subj))
-            f.write(str(datetime.datetime.now()) + "\t" +subj + " error\n")
+            f.write(str(datetime.datetime.now()) + "\t" + subj + " error\n")
         continue
 
 # .bidsignore file in case error_heudiconv.txt is created
