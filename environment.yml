@@ -4,5 +4,5 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.8
+  - python=3.11
   - pydicom=2.4.4=pyhd8ed1ab_0
