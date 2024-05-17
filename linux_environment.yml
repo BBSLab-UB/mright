@@ -1,0 +1,11 @@
+name: mright-env
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pydicom
+  - dcm2niix
+  - heudiconv
+  - pandas
