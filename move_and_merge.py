@@ -5,6 +5,7 @@
 
 import os
 import warnings
+from pathlib import Path
 import pandas as pd
 
 # we have to move the generated BIDS and metadata to the shared folder
@@ -30,10 +31,27 @@ def move_subs_to_destination(source, destination):
         else:
             warnings.warn('WARNING: Subfolder {} already exists in subject folder {}. Moving was SKIPPED.'.format(subdir, destination))
 
+# ses-noses tree check
+listdir2 = lambda bids_root:[os.path.basename(str(subdir_p)) for subdir_p in list(Path(bids_root).glob(os.path.join('sub-*','*')))]
+ses_tree = lambda bids_root: any('ses' in subdir_n for subdir_n in listdir2(bids_root))
+noses_tree = lambda subdir_list: any('ses' not in subdir_n for subdir_n in listdir2(bids_root))
+
+def check(path1, path2):
+    if listdir2(path1) != [] and listdir2(path2) != []:
+        if ses_tree(path1) == noses_tree(path2):
+            if path1 == path2:
+                raise ValueError('ERROR: {} directory has both session and no-session hierarchies.'.format(path1))
+            else:
+                raise ValueError('ERROR: Input {} and output {} directories have conflicting session/no-session hierarchies.'.format(path1, path2))
+
+check(local_bids_path, local_bids_path)
+check(destination_bids_path, destination_bids_path)
+check(local_bids_path, destination_bids_path)
+
 # create .heudiconv in destination path
 if '.heudiconv' not in os.listdir(destination_bids_path):
     os.mkdir(os.path.join(destination_bids_path, '.heudiconv'))
-    
+   
 for sub in list_of_subs_local:
     # move BIDS
     move_subs_to_destination(os.path.join(local_bids_path, sub), os.path.join(destination_bids_path, sub))
