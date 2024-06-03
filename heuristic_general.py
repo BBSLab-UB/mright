@@ -110,12 +110,13 @@ def infotodict(seqinfo):
                  info[dwi_sefm_pa].append(s.series_id)
             else:
                  info[dwi_dir_pa].append(s.series_id)
+        
         #swi
         if s.protocol_name=='SWI':
             if s.image_type[2]=='P':
                 info[swi_phase].append(s.series_id)  
             elif s.image_type[2]=='MNIP':
-                info[swi_mIP].append(s.series_id)
+                info[swi_mip].append(s.series_id)
             elif s.image_type[3]=='SWI':
                 info[swi_comb].append(s.series_id)
             else :
@@ -126,12 +127,12 @@ def infotodict(seqinfo):
             if s.sequence_name=='epse2d1_86':
                 info[pcasl_sefm_ap].append(s.series_id)
             elif s.sequence_name=='mbPCASL2d1_86':
-                info[pcasl_epi_ap].append(s.series_id)
+                info[pcasl_vol_ap].append(s.series_id)
         if s.protocol_name=='pCASL_PA': 
             if s.sequence_name=='epse2d1_86':
                 info[pcasl_sefm_pa].append(s.series_id)
             elif s.sequence_name=='mbPCASL2d1_86':
-                info[pcasl_epi_pa].append(s.series_id)
+                info[pcasl_vol_pa].append(s.series_id)
 
     return info
 
