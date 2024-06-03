@@ -34,7 +34,7 @@ def move_subs_to_destination(source, destination):
 # ses-noses tree check
 listdir2 = lambda bids_root:[os.path.basename(str(subdir_p)) for subdir_p in list(Path(bids_root).glob(os.path.join('sub-*','*')))]
 ses_tree = lambda bids_root: any('ses' in subdir_n for subdir_n in listdir2(bids_root))
-noses_tree = lambda subdir_list: any('ses' not in subdir_n for subdir_n in listdir2(bids_root))
+noses_tree = lambda bids_root: any('ses' not in subdir_n for subdir_n in listdir2(bids_root))
 
 def check(path1, path2):
     if listdir2(path1) != [] and listdir2(path2) != []:
