@@ -1,4 +1,0 @@
-dcm2niix==1.0.20220715
-heudiconv==1.1.0
-pydicom==2.4.4
-pandas==2.0.3
