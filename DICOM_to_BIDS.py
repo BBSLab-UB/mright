@@ -27,7 +27,7 @@ def get_dicoms_in_list(dicoms_list):
         list_of_dicoms = []
         for dicom_id_path in file:
             dicom_id_path = dicom_id_path.rstrip()
-            if dicom_id_path[-1] == '/':
+            if dicom_id_path[-1] == "/":
                 dicom_id_path = dicom_id_path[:-1]
             dicom_id = os.path.basename(dicom_id_path)
             list_of_dicoms.append(dicom_id)
@@ -40,8 +40,8 @@ dicoms_in_dir = [s for s in os.listdir(dicoms_path)]
 # is there any difference?
 list_minus_dir = set(dicoms_in_list).difference(dicoms_in_dir)
 if (list_minus_dir != set()) is True:                                           # Some subject not in dicoms_path
-    print(f'WARNING: {str(list_minus_dir)} subject(s) not in source directory')
-    with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:        # error log
+    print(f"WARNING: {str(list_minus_dir)} subject(s) not in source directory")
+    with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:        # error log
         f.write(str(datetime.datetime.now()) + "\t" + str(list_minus_dir) +
                 " subject(s) not in source directory\n")
     dicoms_in_list = list(set(dicoms_in_list).difference(list_minus_dir))       # missing subjects are skipped
@@ -49,10 +49,10 @@ if (list_minus_dir != set()) is True:                                           
 # is there any BIDS already in the bids_path? Is there any conflict? Do you want to overwrite?
 if use_sessions == True:
     ses_path ="ses-{}".format(ses)    
-    bids = [s[4:] for s in os.listdir(bids_path) if ((s[:4] == 'sub-') and os.path.isdir(os.path.join(bids_path, s, ses_path)) and (os.listdir(os.path.join(bids_path, s)) != []))]
+    bids = [s[4:] for s in os.listdir(bids_path) if ((s[:4] == "sub-") and os.path.isdir(os.path.join(bids_path, s, ses_path)) and (os.listdir(os.path.join(bids_path, s)) != []))]
 
 else:
-    bids = [s[4:] for s in os.listdir(bids_path) if ((s[:4] == 'sub-') and (os.listdir(os.path.join(bids_path, s)) != []))]
+    bids = [s[4:] for s in os.listdir(bids_path) if ((s[:4] == "sub-") and (os.listdir(os.path.join(bids_path, s)) != []))]
     
 intersection_bids_list = set(dicoms_in_list).intersection(bids)
 
@@ -64,25 +64,25 @@ while (intersection_bids_list != set()) is True:                                
                            " already in BIDS directory, do you want to overwrite? (Y/N) ").upper()
     if overwrite_bids == "N":                                                   # No overwriting: todo_dicoms = dicoms in list not in bids_path
         todo_dicoms = list(set(dicoms_in_list).difference(bids))
+        print("Overwriting of " + str(intersection_bids_list) + "was skipped.")
         intersection_bids_list = set()
-        print('Overwriting of ' + str(intersection_bids_list) + 'was skipped.')
     elif overwrite_bids == "Y":                                                # Overwriting: delete BIDS in conflict, convert the entire list
         if use_sessions == True:
             for dicom_id in dicoms_in_list:
-                if os.path.exists(os.path.join(bids_path, 'sub-{}'.format(dicom_id), ses_path)):
-                    shutil.rmtree(os.path.join(bids_path, 'sub-{}'.format(dicom_id), ses_path))
-                    print('INFO: ' + os.path.join(bids_path, 'sub-{}'.format(dicom_id), ses_path) + ' will be overwritten.')
-                if os.path.exists(os.path.join(bids_path, '.heudiconv', dicom_id, ses_path)):
-                    shutil.rmtree(os.path.join(bids_path, '.heudiconv', dicom_id, ses_path))
-                    print('INFO: ' + os.path.join(bids_path, '.heudiconv', dicom_id, ses_path) + ' will be overwritten.')
+                if os.path.exists(os.path.join(bids_path, "sub-{}".format(dicom_id), ses_path)):
+                    shutil.rmtree(os.path.join(bids_path, "sub-{}".format(dicom_id), ses_path))
+                    print("INFO: " + os.path.join(bids_path, "sub-{}".format(dicom_id), ses_path) + " will be overwritten.")
+                if os.path.exists(os.path.join(bids_path, ".heudiconv", dicom_id, ses_path)):
+                    shutil.rmtree(os.path.join(bids_path, ".heudiconv", dicom_id, ses_path))
+                    print("INFO: " + os.path.join(bids_path, ".heudiconv", dicom_id, ses_path) + " will be overwritten.")
         else:            
             for dicom_id in dicoms_in_list:
-                if os.path.exists(os.path.join(bids_path, 'sub-{}'.format(dicom_id))):
-                    shutil.rmtree(os.path.join(bids_path, 'sub-{}'.format(dicom_id)))
-                    print('INFO: ' + os.path.join(bids_path, 'sub-{}'.format(dicom_id)) + ' will be overwritten.')
-                if os.path.exists(os.path.join(bids_path, '.heudiconv', dicom_id)):
-                    shutil.rmtree(os.path.join(bids_path, '.heudiconv', dicom_id))
-                    print('INFO: ' + os.path.join(bids_path, '.heudiconv', dicom_id) + ' will be overwritten.')                    
+                if os.path.exists(os.path.join(bids_path, "sub-{}".format(dicom_id))):
+                    shutil.rmtree(os.path.join(bids_path, "sub-{}".format(dicom_id)))
+                    print("INFO: " + os.path.join(bids_path, "sub-{}".format(dicom_id)) + " will be overwritten.")
+                if os.path.exists(os.path.join(bids_path, ".heudiconv", dicom_id)):
+                    shutil.rmtree(os.path.join(bids_path, ".heudiconv", dicom_id))
+                    print("INFO: " + os.path.join(bids_path, ".heudiconv", dicom_id) + " will be overwritten.")                    
         todo_dicoms = dicoms_in_list
         intersection_bids_list = set()
     else:
@@ -104,18 +104,18 @@ for subj in todo_dicoms:
                     
         # ses- check: Subj folder must be empty or contain ONLY ses- subfolders
             if subdir_list:
-                subdir_check = [ses_subdir for ses_subdir in subdir_list if 'ses-' in ses_subdir[:4]]
+                subdir_check = [ses_subdir for ses_subdir in subdir_list if "ses-" in ses_subdir[:4]]
                 if subdir_check != subdir_list:
-                    with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+                    with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:
                         print("WARNING: Subject {} has been skipped because it lacks session hierarchy, despite a session was inputed. Issue logged in error_heudiconv.txt".format(subj))
                         f.write(str(datetime.datetime.now()) + "\t" + subj + " session inputed, but there is no previous session hierarchy\n")
                     continue
             if not ses_path in os.listdir(subj_path):
                 print("Starting subject {} conversion".format(subj))
-                command = 'heudiconv -d '+ os.path.join(dicoms_path,'{subject}','*','*.IMA') + ' -o '+ bids_path +' -f '+ heuristic_file_path +' -s '+ subj + ' -ss '+ ses +' -c dcm2niix -b --minmeta --overwrite'
+                command = "heudiconv -d "+ os.path.join(dicoms_path,"{subject}","*","*.IMA") + " -o "+ bids_path +" -f "+ heuristic_file_path +" -s "+ subj + " -ss "+ ses +" -c dcm2niix -b --minmeta --overwrite"
                 os.system(command)
             else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
-                with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+                with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:
                     print("WARNING: Subject {} has been processed before and you chose to not overwrite. Subject will be skipped. Issue logged in error_heudiconv.txt".format(subj))
                     f.write(str(datetime.datetime.now()) + "\t" + subj + " already processed\n")
        
@@ -125,23 +125,23 @@ for subj in todo_dicoms:
             
             # ses- check: Subj folder must be empty or contain ONLY ses- subfolders
             if subdir_list:
-                subdir_check = [ses_subdir for ses_subdir in subdir_list if 'ses-' not in ses_subdir[:4]]
+                subdir_check = [ses_subdir for ses_subdir in subdir_list if "ses-" not in ses_subdir[:4]]
                 if subdir_check != subdir_list:
-                    with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+                    with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:
                         print("WARNING: Subject {} has been skipped because it has session hierarchy, despite no session was inputed. Issue logged in error_heudiconv.txt".format(subj))
                         f.write(str(datetime.datetime.now()) + "\t" +subj + " session not inputed, but there is previous session hierarchy\n")
                     continue
             if ("sub-{}".format(subj) not in os.listdir(bids_path)) or (subdir_list == []):
                 print("Starting subject {} conversion".format(subj))
-                command = 'heudiconv -d '+ os.path.join(dicoms_path,'{subject}','*','*.IMA') + ' -o '+ bids_path +' -f '+ heuristic_file_path +' -s '+ subj +' -c dcm2niix -b --minmeta --overwrite'
+                command = "heudiconv -d "+ os.path.join(dicoms_path,"{subject}","*","*.IMA") + " -o "+ bids_path +" -f "+ heuristic_file_path +" -s "+ subj +" -c dcm2niix -b --minmeta --overwrite"
                 os.system(command)
             else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
-                with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+                with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:
                     print("WARNING: Subject {} has been processed before and you chose to not overwrite. Subject will be skipped. Issue logged in error_heudiconv.txt".format(subj))
                     f.write(str(datetime.datetime.now()) + "\t" + subj + " already processed\n")
     
     except:                                                                     # this could happen, especially if the script is run on Windows
-        with open(os.path.join(bids_path, "error_heudiconv.txt"), 'a') as f:
+        with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:
             print("WARNING: Unable to process subject {}. Subject will be skipped. Issue logged in error_heudiconv.txt".format(subj))
             f.write(str(datetime.datetime.now()) + "\t" + subj + " error\n")
         continue
@@ -150,10 +150,10 @@ for subj in todo_dicoms:
 
 if os.path.exists(os.path.join(bids_path, "error_heudiconv.txt")) == True:
     if os.path.exists(os.path.join(bids_path, ".bidsignore")) == False:
-        with open(os.path.join(bids_path, ".bidsignore"), 'a') as f:
-                    f.write('error_heudiconv.txt\n')
+        with open(os.path.join(bids_path, ".bidsignore"), "a") as f:
+                    f.write("error_heudiconv.txt\n")
     else:
-        with open(os.path.join(bids_path, ".bidsignore"), 'r+') as f:
+        with open(os.path.join(bids_path, ".bidsignore"), "r+") as f:
             lines = {line.rstrip() for line in f}
             if "error_heudiconv.txt" not in lines:
-                f.write('error_heudiconv.txt\n')          
+                f.write("error_heudiconv.txt\n")          
