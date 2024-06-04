@@ -12,7 +12,7 @@ def meta_func(var, msg, msg2="", ispath=True):
     if data[var] != "":
         value_ok = False
         while value_ok == False:
-            value_check = input("Is this {}:\n{}?\n(Y/N) ".format(msg, data[var])).upper()
+            value_check = input("Is this {}?:\n{}\n(Y/N) ".format(msg, data[var])).upper()
             if value_check == 'Y':
                 value_ok = True
             elif value_check == 'N':
