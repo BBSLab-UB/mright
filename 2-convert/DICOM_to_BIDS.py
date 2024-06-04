@@ -5,16 +5,20 @@
 
 # import libraries
 import os
+import sys
 import datetime
 import shutil
 
+root_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(root_dir)
+from meta import meta_func
+
 # input paths
-# remove '' from string
-dicoms_path = os.path.normpath(input(r"Please, enter your DICOM source directory path (add TP folder to path if needed): ").replace("'","").replace(" ","")) # /institut directory
-dicoms_list_txt = os.path.normpath(input(r"Please, enter your list of DICOMS file path: ").replace("'","").replace(" ",""))         # copy subjects folders to a .txt --> a subject folder path or ID per line
-bids_path = os.path.normpath(input(r"Please, enter your BIDS destination directory path: ").replace("'","").replace(" ",""))    # recommended: local folder at /home, folder must be created before running the script
-heuristic_file_path = os.path.normpath(input(r"Please, enter your heuristic file path: ").replace("'","").replace(" ",""))
-ses = input(r"Please, enter your session label: ")
+dicoms_path = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)") # /institut directory
+dicoms_list_txt = meta_func("dicom_list", "your list of DICOMS file path")                               # copy subjects folders to a .txt --> a subject folder path or ID per line
+bids_path = meta_func("bids_in", "your BIDS destination directory path")                                 # recommended: local folder at /home, folder must be created before running the script
+heuristic_file_path = meta_func("heuristic", "your heuristic file path")
+ses = meta_func("ses", "your session label", ispath=False)
 
 if ses == "NOSESSION":
     use_sessions = False
