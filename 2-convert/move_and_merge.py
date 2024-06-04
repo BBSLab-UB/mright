@@ -4,13 +4,18 @@
 ############################################
 
 import os
+import sys
 import warnings
 from pathlib import Path
 import pandas as pd
 
+root_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(root_dir)
+from meta import meta_func
+
 # we have to move the generated BIDS and metadata to the shared folder
-local_bids_path = os.path.normpath(input(r"Please, enter your BIDS source (local) directory path: ").replace("'","").replace(" ","")) 
-destination_bids_path = os.path.normpath(input(r"Please, enter your BIDS destination (shared) directory path: ").replace("'","").replace(" ","")) 
+local_bids_path = meta_func("bids_in", "your BIDS source (local) directory path")
+destination_bids_path = meta_func("bids_out", "your BIDS destination (shared) directory path")
 
 #subjects to move
 list_of_subs_local = [sub for sub in os.listdir(local_bids_path) if sub[:4] == "sub-"]
