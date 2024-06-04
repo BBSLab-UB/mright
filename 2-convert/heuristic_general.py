@@ -3,6 +3,18 @@
 #######       BBSLab Jun 2024        #######
 ############################################
 
+import os
+import json
+
+json_meta = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "meta.json")
+with open(json_meta, 'r') as file:
+    data = json.load(file)
+if data['ses'] == "NOSESSION":        
+    session_dir = ""
+    session_str = ""
+else:
+    session_dir = "/{session}"
+    session_str = "_{session}"
 
 # create files function
 def create_key(template, outtype=('nii.gz',), annotation_classes=None):
@@ -24,30 +36,30 @@ def infotodict(seqinfo):
     # paths for the desired output BIDS. Further BIDS paths must follow BIDS
     # specification filenames: https://bids-standard.github.io/bids-starter-kit/folders_and_files/files.html
     
-    t1w=create_key('sub-{subject}/{session}/anat/sub-{subject}_{session}_run-{item:02d}_T1w')
-    t2w=create_key('sub-{subject}/{session}/anat/sub-{subject}_{session}_run-{item:02d}_T2w')
-    flair=create_key('sub-{subject}/{session}/anat/sub-{subject}_{session}_run-{item:02d}_FLAIR')
+    t1w=create_key('sub-{subject}'+session_dir+'/anat/sub-{subject}'+session_str+'_run-{item:02d}_T1w')
+    t2w=create_key('sub-{subject}'+session_dir+'/anat/sub-{subject}'+session_str+'_run-{item:02d}_T2w')
+    flair=create_key('sub-{subject}'+session_dir+'/anat/sub-{subject}'+session_str+'_run-{item:02d}_FLAIR')
     
-    rest_bold_ap=create_key('sub-{subject}/{session}/func/sub-{subject}_{session}_task-rest_dir-ap_run-{item:02d}_bold')
-    rest_sbref_ap=create_key('sub-{subject}/{session}/func/sub-{subject}_{session}_task-rest_dir-ap_run-{item:02d}_sbref')
+    rest_bold_ap=create_key('sub-{subject}'+session_dir+'/func/sub-{subject}'+session_str+'_task-rest_dir-ap_run-{item:02d}_bold')
+    rest_sbref_ap=create_key('sub-{subject}'+session_dir+'/func/sub-{subject}'+session_str+'_task-rest_dir-ap_run-{item:02d}_sbref')
 
-    dwi_dir_ap=create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_dir-ap_run-{item:02d}_dwi') 
-    dwi_dir_pa=create_key('sub-{subject}/{session}/dwi/sub-{subject}_{session}_dir-pa_run-{item:02d}_dwi') 
+    dwi_dir_ap=create_key('sub-{subject}'+session_dir+'/dwi/sub-{subject}'+session_str+'_dir-ap_run-{item:02d}_dwi') 
+    dwi_dir_pa=create_key('sub-{subject}'+session_dir+'/dwi/sub-{subject}'+session_str+'_dir-pa_run-{item:02d}_dwi') 
     
-    swi_mag=create_key('sub-{subject}/{session}/swi/sub-{subject}_{session}_run-{item:02d}_part-mag_GRE')
-    swi_phase=create_key('sub-{subject}/{session}/swi/sub-{subject}_{session}_run-{item:02d}_part-phase_GRE')
-    swi_comb=create_key('sub-{subject}/{session}/swi/sub-{subject}_{session}_run-{item:02d}_swi')
-    swi_mip=create_key('sub-{subject}/{session}/swi/sub-{subject}_{session}_run-{item:02d}_minIP')
+    swi_mag=create_key('sub-{subject}'+session_dir+'/swi/sub-{subject}'+session_str+'_run-{item:02d}_part-mag_GRE')
+    swi_phase=create_key('sub-{subject}'+session_dir+'/swi/sub-{subject}'+session_str+'_run-{item:02d}_part-phase_GRE')
+    swi_comb=create_key('sub-{subject}'+session_dir+'/swi/sub-{subject}'+session_str+'_run-{item:02d}_swi')
+    swi_mip=create_key('sub-{subject}'+session_dir+'/swi/sub-{subject}'+session_str+'_run-{item:02d}_minIP')
     
-    pcasl_vol_ap=create_key('sub-{subject}/{session}/perf/sub-{subject}_{session}_acq-pcasl_dir-ap_run-{item:02d}_asl') 
-    pcasl_vol_pa=create_key('sub-{subject}/{session}/perf/sub-{subject}_{session}_acq-pcasl_dir-pa_run-{item:02d}_asl')
+    pcasl_vol_ap=create_key('sub-{subject}'+session_dir+'/perf/sub-{subject}'+session_str+'_acq-pcasl_dir-ap_run-{item:02d}_asl') 
+    pcasl_vol_pa=create_key('sub-{subject}'+session_dir+'/perf/sub-{subject}'+session_str+'_acq-pcasl_dir-pa_run-{item:02d}_asl')
 
-    rest_sefm_ap=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-restsefm_dir-ap_run-{item:02d}_epi')
-    rest_sefm_pa=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-restsefm_dir-pa_run-{item:02d}_epi')
-    dwi_sefm_ap=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-dwisefm_dir-ap_run-{item:02d}_epi')
-    dwi_sefm_pa=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-dwisefm_dir-pa_run-{item:02d}_epi')
-    pcasl_sefm_ap=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-pcaslsefm_dir-ap_run-{item:02d}_epi') 
-    pcasl_sefm_pa=create_key('sub-{subject}/{session}/fmap/sub-{subject}_{session}_acq-pcaslsefm_dir-pa_run-{item:02d}_epi')    
+    rest_sefm_ap=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-restsefm_dir-ap_run-{item:02d}_epi')
+    rest_sefm_pa=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-restsefm_dir-pa_run-{item:02d}_epi')
+    dwi_sefm_ap=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-dwisefm_dir-ap_run-{item:02d}_epi')
+    dwi_sefm_pa=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-dwisefm_dir-pa_run-{item:02d}_epi')
+    pcasl_sefm_ap=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-pcaslsefm_dir-ap_run-{item:02d}_epi') 
+    pcasl_sefm_pa=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-pcaslsefm_dir-pa_run-{item:02d}_epi')    
 
 
     # dictionary: list of DICOMs for each BIDS file
