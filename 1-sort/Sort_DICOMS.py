@@ -5,11 +5,16 @@
 
 # import libraries
 import os
+import sys
 from pathlib import Path
 import pydicom
 
+root_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(root_dir)
+from meta import meta_func
+
 # input folder
-dicoms_to_order_folder = os.path.normpath(input(r"Please, enter your DICOM directory path (add TP folder to path if needed): ").replace("'","").replace(" ",""))
+dicoms_to_order_folder = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)")
 list_subjects=os.listdir(dicoms_to_order_folder)
 
 # check folders and maintain only those which are not ordered. Less than 7 folders per subject AND more than 0 unsorted files?
