@@ -4,7 +4,7 @@
 #########  T1/T2 VALIDATOR FOR QC  #########
 #########     BBSLab Jun 2024      #########
 ############################################
-
+#e
 read -p "Please, enter your GIF folder path: " ROOT
 ROOT="${ROOT//"'"/}"
 ROOT="${ROOT//" "/}"
