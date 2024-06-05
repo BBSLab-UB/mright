@@ -79,7 +79,7 @@ subjects_ls = os.listdir(bids_path)
 subjects = [sub for sub in subjects_ls if sub[:4]=="sub-" and os.path.isdir(os.path.join(bids_path, sub, seslabel))]
 
 # load newest  version of inventory [ses-XX_]dicoms_bids_inventory_YYYY-MM-DD.txt
-newest_inv = sorted([inv for inv in os.listdir(os.path.join(qc_path, seslabel)) if "_dicoms_bids_inventory_" in inv])[-1]
+newest_inv = sorted([inv for inv in os.listdir(os.path.join(qc_path, seslabel)) if "dicoms_bids_inventory_" in inv])[-1]
 inventory_df=pd.read_csv(os.path.join(qc_path, seslabel, newest_inv), sep=",")
 inventory_df.columns=sorted(inventory_df.columns.str.replace('id_user',''),key=lambda x : x=='')
 inventory_df = inventory_df.drop(inventory_df.columns[-1], axis=1)
