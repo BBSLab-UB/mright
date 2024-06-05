@@ -5,4 +5,4 @@ channels:
   - defaults
 dependencies:
   - python=3.11
-  - pydicom=2.4.4=pyhd8ed1ab_0
+  - pydicom
