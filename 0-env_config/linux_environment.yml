@@ -9,3 +9,6 @@ dependencies:
   - dcm2niix
   - heudiconv
   - pandas
+  - nibabel
+  - pillow
+  - numpy
