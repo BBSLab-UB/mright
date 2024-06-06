@@ -11,9 +11,10 @@ import shutil
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
-from meta import meta_func
+from meta import meta_func, meta_create
 
 # input paths
+meta_create()
 dicoms_path = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)") # /institut directory
 dicoms_list_txt = meta_func("dicom_list", "your list of DICOMS file path")                               # copy subjects folders to a .txt --> a subject folder path or ID per line
 bids_path = meta_func("bids_in", "your BIDS destination directory path")                                 # recommended: local folder at /home, folder must be created before running the script

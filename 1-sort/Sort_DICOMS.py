@@ -11,9 +11,10 @@ import pydicom
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
-from meta import meta_func
+from meta import meta_func, meta_create
 
 # input folder
+meta_create()
 dicoms_to_order_folder = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)")
 list_subjects=os.listdir(dicoms_to_order_folder)
 

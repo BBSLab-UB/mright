@@ -1,13 +1,37 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+############################################
+#######  MRIGHT METADATA EDITOR FILE  ######
+#######        BBSLab Jun 2024        ######
+############################################
+
 import os
 import json
 
+json_meta = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "meta.json")
+
+def meta_create():
+    '''This function creates an empty meta.json file at the mright root'''
+    if os.path.isfile(json_meta) == False:
+        empty_dict = {
+                      "dicom": "",
+                      "dicom_list": "",
+                      "bids_in": "",
+                      "bids_out": "",
+                      "heuristic": "",
+                      "ses": "",
+                      "recons": "",
+                      "bold": "",
+                      "qc": ""
+                      }
+        with open(json_meta, 'a') as file:
+            json.dump(empty_dict, file)
+            
+
 def meta_func(var, msg, msg2="", ispath=True):
     '''This function collects, updates and returns all the user-inputed data needed
-    for the MRIght pipeline. This data is stored at meta.json'''
-    json_meta = os.path.join(os.path.dirname(os.path.realpath(__file__)), "meta.json")
+    for the MRIght pipeline. This data is stored at meta.json'''    
     with open(json_meta, 'r') as file:
         data = json.load(file)
     edit_data = False

@@ -14,9 +14,10 @@ import sys
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
-from meta import meta_func
+from meta import meta_func, meta_create
 
 # input paths
+meta_create()
 dicoms_path = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)")                            # /institut directory
 bids_path = meta_func("bids_out", "your BIDS directory path (from the shared folder)")                                              # /institut directory
 recons_path = meta_func("recons", "your recon_all directory path", msg2=" (press Enter if it does not exist)")                      # /institut directory, won't be BIDS-compliant, MRI/derivatives/<recons>/sub-XXXX[_ses-XX]

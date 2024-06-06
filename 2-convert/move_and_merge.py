@@ -11,9 +11,10 @@ import pandas as pd
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
-from meta import meta_func
+from meta import meta_func, meta_create
 
 # we have to move the generated BIDS and metadata to the shared folder
+meta_create()
 local_bids_path = meta_func("bids_in", "your BIDS source (local) directory path")
 destination_bids_path = meta_func("bids_out", "your BIDS destination (shared) directory path")
 

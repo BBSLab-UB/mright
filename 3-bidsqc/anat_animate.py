@@ -17,9 +17,10 @@ import sys
 
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
-from meta import meta_func
+from meta import meta_func, meta_create
 
 # input paths
+meta_create()
 bids_path = bids_path = meta_func("bids_out", "your BIDS directory path (from the shared folder)")      # /institut directory
 qc_path = meta_func("qc", "your QC directory path") 
 ses = meta_func("ses", "your session label", ispath=False)
