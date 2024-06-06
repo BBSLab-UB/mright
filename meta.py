@@ -5,6 +5,8 @@ import os
 import json
 
 def meta_func(var, msg, msg2="", ispath=True):
+    '''This function collects, updates and returns all the user-inputed data needed
+    for the MRIght pipeline. This data is stored at meta.json'''
     json_meta = os.path.join(os.path.dirname(os.path.realpath(__file__)), "meta.json")
     with open(json_meta, 'r') as file:
         data = json.load(file)
