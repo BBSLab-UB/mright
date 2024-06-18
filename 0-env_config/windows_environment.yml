@@ -1,4 +1,4 @@
-name: mright
+name: mright-env
 channels:
   - anaconda
   - conda-forge
