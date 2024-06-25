@@ -16,6 +16,8 @@ else:
     session_dir = "/{session}"
     session_str = "_{session}"
 
+grouping = 'studyUID'                   # change it to 'all' if Study Identifier UID error appears
+
 # create files function
 def create_key(template, outtype=('nii.gz',), annotation_classes=None):
     if template is None or not template:
