@@ -94,7 +94,6 @@ while (intersection_bids_list != set()) is True:                                
         
         else:            
             for dicom_id in dicoms_in_list_clean:
-                dicom_id = re.sub(r'[^a-zA-Z0-9]', '', dicom_id)
                 if os.path.exists(os.path.join(bids_path, "sub-{}".format(dicom_id))):
                     shutil.rmtree(os.path.join(bids_path, "sub-{}".format(dicom_id)))
                     print("INFO: " + os.path.join(bids_path, "sub-{}".format(dicom_id)) + " will be overwritten.")
