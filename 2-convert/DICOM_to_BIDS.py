@@ -22,6 +22,9 @@ bids_path = meta_func("bids_in", "your BIDS destination directory path")        
 heuristic_file_path = meta_func("heuristic", "your heuristic file path")
 ses = meta_func("ses", "your session label", ispath=False)
 
+#delete optional files?
+delete_optional = True
+
 if ses == "NOSESSION":
     use_sessions = False
 else:
@@ -166,7 +169,6 @@ for subj in todo_dicoms:
         continue
 
 # .bidsignore file in case error_heudiconv.txt is created
-
 if os.path.exists(os.path.join(bids_path, "error_heudiconv.txt")) == True:
     if os.path.exists(os.path.join(bids_path, ".bidsignore")) == False:
         with open(os.path.join(bids_path, ".bidsignore"), "a") as f:
@@ -176,4 +178,13 @@ if os.path.exists(os.path.join(bids_path, "error_heudiconv.txt")) == True:
             lines = {line.rstrip() for line in f}
             if "error_heudiconv.txt" not in lines:
                 f.write("\nerror_heudiconv.txt\n")   
-                
+
+# delete scans.tsv and events.tsv optional files                  
+if delete_optional == True:
+    if use_sessions == True:
+        subses_path = "ses-*"
+    else:
+        subses_path = ""
+    subses_path = os.path.join(bids_path, "sub-*", ses_path)
+    cmd_remove = "rm " + os.path.join(subses_path, "*_scans.tsv") + " && rm " + os.path.join(subses_path, "func", "*_events.tsv")
+    os.system(cmd_remove)
