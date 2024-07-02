@@ -9,7 +9,7 @@
 import os
 import json
 
-json_meta = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "meta.json")
+json_meta = os.path.join(os.path.dirname(os.path.realpath(__file__)), "meta.json")
 
 def meta_create():
     '''This function creates an empty meta.json file at the mright root'''
