@@ -182,9 +182,9 @@ if os.path.exists(os.path.join(bids_path, "error_heudiconv.txt")) == True:
 # delete scans.tsv and events.tsv optional files                  
 if delete_optional == True:
     if use_sessions == True:
-        subses_path = "ses-*"
+        ses_path = "ses-*"
     else:
-        subses_path = ""
+        ses_path = ""
     subses_path = os.path.join(bids_path, "sub-*", ses_path)
     cmd_remove = "rm " + os.path.join(subses_path, "*_scans.tsv") + " && rm " + os.path.join(subses_path, "func", "*_events.tsv")
     os.system(cmd_remove)
