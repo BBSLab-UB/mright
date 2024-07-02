@@ -18,6 +18,9 @@ else:
 
 grouping = 'studyUID'                   # change it to 'all' if Study Identifier UID error appears
 
+delete_scans = False
+delete_events = True
+
 # create files function
 def create_key(template, outtype=('nii.gz',), annotation_classes=None):
     if template is None or not template:
