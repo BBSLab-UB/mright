@@ -6,6 +6,7 @@
 # import libraries
 import os
 import sys
+import importlib
 import datetime
 import shutil
 import re
@@ -22,8 +23,14 @@ bids_path = meta_func("bids_in", "your BIDS destination directory path")        
 heuristic_file_path = meta_func("heuristic", "your heuristic file path")
 ses = meta_func("ses", "your session label", ispath=False)
 
-#delete optional files?
-delete_optional = True
+# get deleting optional files choice from heuristic file
+heuristic_module_name = os.path.basename(heuristic_file_path).split('.')[0]
+spec = importlib.util.spec_from_file_location(heuristic_module_name, heuristic_file_path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+delete_scans = module.delete_scans
+delete_events = module.delete_events
 
 if ses == "NOSESSION":
     use_sessions = False
@@ -180,11 +187,26 @@ if os.path.exists(os.path.join(bids_path, "error_heudiconv.txt")) == True:
                 f.write("\nerror_heudiconv.txt\n")   
 
 # delete scans.tsv and events.tsv optional files                  
-if delete_optional == True:
-    if use_sessions == True:
-        ses_path = "ses-*"
-    else:
-        ses_path = ""
-    subses_path = os.path.join(bids_path, "sub-*", ses_path)
-    cmd_remove = "rm " + os.path.join(subses_path, "*_scans.tsv") + " && rm " + os.path.join(subses_path, "func", "*_events.tsv")
-    os.system(cmd_remove)
+if use_sessions == True:
+    ses_path = "ses-*"
+else:
+    ses_path = ""
+subses_path = os.path.join(bids_path, "sub-*", ses_path)
+
+if delete_scans == True:
+    cmd_scans = "rm " + os.path.join(subses_path, "*_scans.tsv")
+    os.system(cmd_scans)
+    print("INFO: Deleting all *_scans.tsv files from each subject[/session] folder")
+elif delete_scans == False:
+    print("INFO: *_scans.tsv files were left in each subject[/session] folder")
+else:
+    print("WARNING: Invalid value for 'delete_scans' variable in heuristics file. No deletion of *_scans.tsv files was done.")
+
+if delete_events == True:
+    cmd_events = "rm " + os.path.join(subses_path, "func", "*_events.tsv")
+    os.system(cmd_events)
+    print("INFO: Deleting all *_events.tsv files from each subject[/session]/func folder")
+elif delete_events == False:
+    print("INFO: *_events.tsv files were left in each subject[/session]/func folder")
+else:
+    print("WARNING: Invalid value for 'delete_events' variable in heuristics file. No deletion of *_events.tsv files was done.")
