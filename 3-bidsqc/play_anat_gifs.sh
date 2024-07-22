@@ -6,8 +6,7 @@
 ############################################
 
 read -p "Please, enter your GIF folder path: " ROOT
-ROOT="${ROOT//"'"/}"
-ROOT="${ROOT//" "/}"
+ROOT=$(echo "$ROOT" | xargs | tr -d "'")
 
 session_foldername=$(basename $(dirname $(dirname $ROOT)))
 if [[ $session_foldername == "ses-"* ]]; then
