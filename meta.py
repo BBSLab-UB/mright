@@ -44,13 +44,13 @@ def meta_func(var, msg, msg2="", ispath=True):
             elif value_check == 'N':
                 data[var] = input(r"Please, enter {}{}: ".format(msg, msg2))
                 if ispath == True:
-                    data[var] = os.path.normpath(data[var]).replace("'","").replace(" ","") # remove '' from string
+                    data[var] = os.path.normpath(data[var]).strip(" '") # remove '' from string
                 edit_data = True
                 value_ok = True
             else:
                 print("Please, enter a valid response.")
     else:
-        data[var] = os.path.normpath(input(r"Please, enter {}{}: ".format(msg, msg2)).replace("'","").replace(" ",""))
+        data[var] = os.path.normpath(input(r"Please, enter {}{}: ".format(msg, msg2)).strip(" '")
         edit_data = True
     if edit_data == True:
         with open(json_meta, 'w') as file:
