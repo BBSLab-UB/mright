@@ -50,7 +50,7 @@ def meta_func(var, msg, msg2="", ispath=True):
             else:
                 print("Please, enter a valid response.")
     else:
-        data[var] = os.path.normpath(input(r"Please, enter {}{}: ".format(msg, msg2)).strip(" '")
+        data[var] = os.path.normpath(input(r"Please, enter {}{}: ".format(msg, msg2)).strip(" '"))
         edit_data = True
     if edit_data == True:
         with open(json_meta, 'w') as file:
