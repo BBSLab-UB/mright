@@ -193,20 +193,22 @@ else:
     ses_path = ""
 subses_path = os.path.join(bids_path, "sub-*", ses_path)
 
-if delete_scans == True:
-    cmd_scans = "rm " + os.path.join(subses_path, "*_scans.tsv")
-    os.system(cmd_scans)
-    print("INFO: Deleting all *_scans.tsv files from each subject[/session] folder")
-elif delete_scans == False:
-    print("INFO: *_scans.tsv files were left in each subject[/session] folder")
-else:
-    print("WARNING: Invalid value for 'delete_scans' variable in heuristics file. No deletion of *_scans.tsv files was done.")
+if len(list(Path("bids_path").glob(os.path.join("sub-*","ses_path","*scans*")))) > 0:
+    if delete_scans == True:
+        cmd_scans = "rm " + os.path.join(subses_path, "*_scans.tsv")
+        os.system(cmd_scans)
+        print("INFO: Deleting all *_scans.tsv files from each subject[/session] folder")
+    elif delete_scans == False:
+        print("INFO: *_scans.tsv files were left in each subject[/session] folder")
+    else:
+        print("WARNING: Invalid value for 'delete_scans' variable in heuristics file. No deletion of *_scans.tsv files was done.")
 
-if delete_events == True:
-    cmd_events = "rm " + os.path.join(subses_path, "func", "*_events.tsv")
-    os.system(cmd_events)
-    print("INFO: Deleting all *_events.tsv files from each subject[/session]/func folder")
-elif delete_events == False:
-    print("INFO: *_events.tsv files were left in each subject[/session]/func folder")
-else:
-    print("WARNING: Invalid value for 'delete_events' variable in heuristics file. No deletion of *_events.tsv files was done.")
+if len(list(Path("bids_path").glob(os.path.join("sub-*","ses_path", "func", "*_events.tsv")))) > 0:
+    if delete_events == True:
+        cmd_events = "rm " + os.path.join(subses_path, "func", "*_events.tsv")
+        os.system(cmd_events)
+        print("INFO: Deleting all *_events.tsv files from each subject[/session]/func folder")
+    elif delete_events == False:
+        print("INFO: *_events.tsv files were left in each subject[/session]/func folder")
+    else:
+        print("WARNING: Invalid value for 'delete_events' variable in heuristics file. No deletion of *_events.tsv files was done.")
