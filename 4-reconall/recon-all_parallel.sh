@@ -47,7 +47,7 @@ set -- "${positional[@]}" # restore positional parameters
 num_tasks=$(echo $(wc -l $LIST_FILE) | awk '{print $1;}')
 num_tasks_idx=$(($num_tasks - 1))
 num_cores=`nproc`
-max_tasks=$(($num_cores / $PCORES))
+max_tasks=$(($num_cores / $PCORES - 1))
 
 echo 
 echo SUBJECTS_DIR $'\t'= "${SUBJECTS_DIR}"
