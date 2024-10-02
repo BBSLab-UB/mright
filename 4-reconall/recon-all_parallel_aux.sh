@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#LIST_FILE=/home/arnau/Desktop/list.txt
-#SLURM_ARRAY_TASK_ID=1
-#SESSION=02
-
 mapfile -t todo_ids < "$LIST_FILE"
 
 for i in "${!todo_ids[@]}"; do
