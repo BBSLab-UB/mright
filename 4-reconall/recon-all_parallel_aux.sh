@@ -1,27 +1,14 @@
 #!/bin/bash
 
-# File containing the subject IDs
-TODO_IDS_FILE="$HOME/Desktop/mright-main/4-reconall/todo.txt"
-
-# Session number
-SESSION="02"
-
-# Input and output directories 
-SUBJECTS_DIR="$HOME/Desktop/Output"
-BIDS_FOLDER="$HOME/Desktop/BIDS"
-
-# Number of cores to use for parallel processing
-PCORES=2
-
-# Load subject IDs from todo file
-mapfile -t todo_ids < "$TODO_IDS_FILE"
+# Load subject IDs from the list file
+mapfile -t todo_ids < "$LIST_FILE"
 
 # Iterate over the array of subject IDs
 for subject_id in "${todo_ids[@]}"; do
-    # Strip directory path if present
+    # Strip directory path to have only the subject ID
     subject_id=$(basename "$subject_id")
 
-    # Create directory and filename based on SESSION
+    # Define directory and filename based on SESSION
     if [ -z "$SESSION" ]; then
         subdir=${subject_id}
         subsesbids=${subject_id}
@@ -36,6 +23,12 @@ for subject_id in "${todo_ids[@]}"; do
     elif [ -e "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz" ]; then
         # Run FreeSurfer recon-all command
         recon-all -all -s "$subject_id" -T2 "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz" -T2pial -i "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T1w.nii.gz" -3T -openmp "$PCORES"
+        
+        # Check for errors
+        if [ $? -ne 0 ]; then
+            echo "Error processing $subject_id. Check FreeSurfer logs for details."
+            continue
+        fi
 
         # Move processed data if subject and directory names differ
         if [ "$subject_id" != "$subdir" ]; then
