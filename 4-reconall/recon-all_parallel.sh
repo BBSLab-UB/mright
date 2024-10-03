@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# ============================================
+# Script for Running Recon-All with SLURM
+# ============================================
+# Usage:
+#   bash recon-all_parallel.sh -o <output_dir> -i <input_dir> -l <list_file> -s <session> -p <cores>
+#
+# Arguments:
+#   -o, --output_dir    Directory to store processed subjects
+#   -i, --input_dir     BIDS directory containing input data
+#   -l, --list_file     File containing a list of subject IDs
+#   -s, --session       Session identifier (e.g., "01")
+#   -p, --pcores        Number of cores to use per task
+# ============================================
+
 echo "Script for running recon-all in parallel"
 
 while [[ $# -gt 0 ]]; do
@@ -37,6 +51,8 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
 done
+
+# Error handling
 
 # Ensure all required variables are set
 if [ -z "$SUBJECTS_DIR" ] || [ -z "$BIDS_FOLDER" ] || [ -z "$LIST_FILE" ] || [ -z "$SESSION" ] || [ -z "$PCORES" ]; then
@@ -109,11 +125,11 @@ sbatch <<EOF
 #SBATCH --job-name=recon-alls                   # Job name
 #SBATCH --ntasks=1                              # Number of tasks (analyses) to run
 #SBATCH --array=0-${num_tasks_idx}%${max_tasks} # Array of running tasks
-#SBATCH -o recon-all_${today_date}_%A_log.out   # Log file filename
-#SBATCH --cpus-per-task=${PCORES}               # Threads allocated to each task
+#SBATCH -o recon-all_${today_date}_%A_log.out   # Output filenames for logs
+#SBATCH --cpus-per-task=${PCORES}               # CPUs allocated to each task
 #SBATCH --nodes=1                               # Nodes allocated to each task
-#SBATCH --partition=batch                       # Partitions to run in (comma separated)
-#SBATCH --time=5-00:00:00                       # Time for analysis (day-hour:min:sec)
+#SBATCH --partition=batch                       # Partitions (queue) to submit job to (comma separated)
+#SBATCH --time=5-00:00:00                       # Time limit for analysis (day-hour:min:sec)
 
 srun bash recon-all_parallel_aux.sh
 EOF

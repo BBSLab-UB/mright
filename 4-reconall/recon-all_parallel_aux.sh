@@ -8,11 +8,16 @@ for subject_id in "${todo_ids[@]}"; do
     # Strip directory path to have only the subject ID
     subject_id=$(basename "$subject_id")
 
-    # Define directory and filename based on SESSION
+    # Retrieve the current subject ID using the SLURM array task ID
+    subject_id=${todo_ids[$SLURM_ARRAY_TASK_ID]}
+
+    # Construct directory and filename paths based session
     if [ -z "$SESSION" ]; then
+        # No session specified; use subject ID directly
         subdir=${subject_id}
         subsesbids=${subject_id}
     else
+        # Session specified; include it in directory and file paths
         subdir=${subject_id}_ses-${SESSION}
         subsesbids=${subject_id}/ses-${SESSION}
     fi
