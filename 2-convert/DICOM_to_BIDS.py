@@ -194,7 +194,7 @@ else:
     ses_path = ""
 subses_path = os.path.join(bids_path, "sub-*", ses_path)
 
-if len(list(Path("bids_path").glob(os.path.join("sub-*", ses_path,"*scans*")))) > 0:
+if len(list(Path(bids_path).glob(os.path.join("sub-*", ses_path,"*scans*")))) > 0:
     if delete_scans == True:
         cmd_scans = "rm " + os.path.join(subses_path, "*_scans.tsv")
         os.system(cmd_scans)
@@ -204,7 +204,7 @@ if len(list(Path("bids_path").glob(os.path.join("sub-*", ses_path,"*scans*")))) 
     else:
         print("WARNING: Invalid value for 'delete_scans' variable in heuristics file. No deletion of *_scans.tsv files was done.")
 
-if len(list(Path("bids_path").glob(os.path.join("sub-*", ses_path, "func", "*_events.tsv")))) > 0:
+if len(list(Path(bids_path).glob(os.path.join("sub-*", ses_path, "func", "*_events.tsv")))) > 0:
     if delete_events == True:
         cmd_events = "rm " + os.path.join(subses_path, "func", "*_events.tsv")
         os.system(cmd_events)
