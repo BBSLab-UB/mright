@@ -4,13 +4,13 @@
 # Script for Running Recon-All with SLURM
 # ============================================
 # Usage:
-#   bash recon-all_parallel.sh -o <output_dir> -i <input_dir> -l <list_file> -s <session> -p <cores>
+#   bash recon-all_parallel.sh -o <output_dir> -i <input_dir> -l <list_file> -p <cores> [-s <session>]
 #
 # Arguments:
 #   -o, --output_dir    Directory to store processed subjects
 #   -i, --input_dir     BIDS directory containing input data
 #   -l, --list_file     File containing a list of subject IDs
-#   -s, --session       Session identifier (e.g., "01")
+#   -s, --session       Session identifier (e.g., "01"), only required in longitudinal studies
 #   -p, --pcores        Number of cores to use per task
 # ============================================
 
@@ -55,10 +55,14 @@ done
 # Error handling
 
 # Ensure all required variables are set
-if [ -z "$SUBJECTS_DIR" ] || [ -z "$BIDS_FOLDER" ] || [ -z "$LIST_FILE" ] || [ -z "$SESSION" ] || [ -z "$PCORES" ]; then
+if [ -z "$SUBJECTS_DIR" ] || [ -z "$BIDS_FOLDER" ] || [ -z "$LIST_FILE" ] || [ -z "$PCORES" ]; then
     echo "Missing arguments. Usage:"
-    echo "bash script.sh -o <output_dir> -i <input_dir> -l <list_file> -s <session> -p <cores>"
+    echo "bash script.sh -o <output_dir> -i <input_dir> -l <list_file> -p <cores> [-s <session>]"
     exit 1
+fi
+
+if [ -z "$SESSION" ]; then
+    echo "Optional session argument is missing, proceeding without session. If the study is longitudinal, program will fail."
 fi
 
 # Check if files and directories exist
@@ -83,9 +87,9 @@ fi
 num_tasks=$(echo $(wc -l < "$LIST_FILE"))
 num_tasks_idx=$(($num_tasks - 1))
 
-# Determine system capabilities for task distribution
+# Determine system capabilities for task distribution (slurm will use, at most, the 90% of the cores)
 num_cores=$(nproc)
-max_tasks=$(($num_cores / $PCORES - 1))
+max_tasks=$(echo "($num_cores * 0.9) / $PCORES" | bc -l | awk '{print int($1)}')
 
 # Display configured settings for confirmation
 echo
@@ -113,23 +117,25 @@ echo "To Do Subjects:         ${todo_ids[*]}"
 # Load necessary software modules
 module load fsl/6.0.4 freesurfer/freesurfer-7.1
 
-# Submit SLURM Job
-
 # Capture the current date for log file naming
 today_date=$(date '+%Y%m%d')
 echo 'Log file will be stored in the current directory.'
 
+# Establish the maximum memory per CPU permitted
+cpu_mem=$(($(free -m | awk 'NR==2{print $2}') / $(nproc)))
+
 # Submit the SLURM array job
 sbatch <<EOF
 #!/bin/bash
-#SBATCH --job-name=recon-alls                   # Job name
-#SBATCH --ntasks=1                              # Number of tasks (analyses) to run
-#SBATCH --array=0-${num_tasks_idx}%${max_tasks} # Array of running tasks
-#SBATCH -o recon-all_${today_date}_%A_log.out   # Output filenames for logs
-#SBATCH --cpus-per-task=${PCORES}               # CPUs allocated to each task
-#SBATCH --nodes=1                               # Nodes allocated to each task
-#SBATCH --partition=batch                       # Partitions (queue) to submit job to (comma separated)
-#SBATCH --time=5-00:00:00                       # Time limit for analysis (day-hour:min:sec)
+#SBATCH --job-name=recon-alls                                           # Job name
+#SBATCH --ntasks=1                                                      # Number of tasks (analyses) to run
+#SBATCH --array=0-${num_tasks_idx}%${max_tasks}                         # Array of running tasks
+#SBATCH -e ${SUBJECTS_DIR}/recon-all_${today_date}_%A_errorlog.out      # Output filenames for logs
+#SBATCH --cpus-per-task=${PCORES}                                       # CPUs allocated to each task
+#SBATCH --nodes=1                                                       # Nodes allocated to each task
+#SBATCH --partition=batch                                               # Partitions (queue) to submit job to (comma separated)
+#SBATCH --time=5-00:00:00                                               # Time limit for analysis (day-hour:min:sec)
+#SBATCH --mem-per-cpu=${cpu_mem}M
 
 srun bash recon-all_parallel_aux.sh
 EOF
