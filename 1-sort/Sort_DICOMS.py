@@ -19,7 +19,7 @@ meta_create()
 dicoms_to_order_folder = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)")
 list_subjects = os.listdir(dicoms_to_order_folder)
 
-# Filter subjects to process based on directory constraints (fewer than 7 folders and more than 0 unsorted files)
+# Filter subjects to process based on the number of folders and files (fewer than 7 folders and more than 0 unsorted files)
 list_subjects_to_do = [
     s for s in list_subjects
     if sum([

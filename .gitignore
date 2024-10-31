@@ -1,2 +1,5 @@
 # metadata file
 meta.json
+
+# Include the slurm logs
+git check-ignore -v slurm-* 
