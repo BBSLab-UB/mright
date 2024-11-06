@@ -177,7 +177,7 @@ def main():
     ses_path = "ses-*" if use_sessions else ""
     subses_path = os.path.join(temp_bids_path, "sub-*", ses_path)
 
-    if len(list(Path(bids_path).glob(os.path.join("sub-*", ses_path, "*scans*")))) > 0:
+    if len(list(Path(temp_bids_path).glob(os.path.join("sub-*", ses_path, "*scans*")))) > 0:
         if delete_scans == True:
             cmd_scans = "rm " + os.path.join(subses_path, "*_scans.tsv")
             os.system(cmd_scans)
