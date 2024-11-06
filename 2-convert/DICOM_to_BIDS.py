@@ -103,7 +103,7 @@ def main():
                         continue
                 if ses_path not in os.listdir(subj_path):
                     print(f"Starting subject {subj} conversion")
-                    command = "heudiconv -d "+ os.path.join(folder1, "TP2", "{subject}", "*", "*.IMA") + " -o "+ folder2 +" -f "+ heuristic_file_path +" -s "+ subj + " -ss "+ ses +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
+                    command = "heudiconv -d "+ os.path.join(folder1, "TP2", "{subject}", "*", "*") + " -o "+ folder2 +" -f "+ heuristic_file_path +" -s "+ subj + " -ss "+ ses +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
                     os.system(command)
                 else:
                     with open(os.path.join(folder2, "error_heudiconv.txt"), "a") as f:
@@ -120,7 +120,7 @@ def main():
                         continue
                 if f"sub-{subj_clean}" not in os.listdir(folder2) or not subdir_list:
                     print(f"Starting subject {subj} conversion")
-                    command = "heudiconv -d "+ os.path.join(folder1, "TP2", "{subject}", "*", "*.IMA") + " -o "+ folder2 +" -f "+ heuristic_file_path +" -s "+ subj +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
+                    command = "heudiconv -d "+ os.path.join(folder1, "TP2", "{subject}", "*", "*") + " -o "+ folder2 +" -f "+ heuristic_file_path +" -s "+ subj +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
                     os.system(command)
                 else:
                     with open(os.path.join(folder2, "error_heudiconv.txt"), "a") as f:
