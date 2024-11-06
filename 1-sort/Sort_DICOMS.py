@@ -8,11 +8,11 @@ import os
 import sys
 from pathlib import Path
 import pydicom
-from meta import meta_func, meta_create
 
 # Set root directory
 root_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(root_dir)
+from meta import meta_func, meta_create
 
 # Create metadata and get DICOM directory path
 meta_create()
