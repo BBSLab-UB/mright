@@ -55,13 +55,13 @@ def main():
         bids = [s[4:] for s in os.listdir(bids_path) if ((s[:4] == "sub-"))]
 
     # Clean DICOM folders and ensure format consistency
-    clean_dicom_ids = {f"sub-{re.sub(r'[^a-zA-Z0-9]', '', sub)}" for sub in dicoms_folders}
+    dicoms_in_list_clean = {f"sub-{re.sub(r'[^a-zA-Z0-9]', '', sub)}" for sub in dicoms_folders}
 
     # Identify subjects needing processing
-    todo_dicoms = {sub for sub in clean_dicom_ids if sub not in bids}
+    todo_dicoms = {sub for sub in dicoms_in_list_clean if sub not in bids}
 
     # Identify subjects that do not need processing
-    intersection_bids_list = clean_dicom_ids.intersection(bids)
+    intersection_bids_list = dicoms_in_list_clean.intersection(bids)
     
     # If there are no subjects in both dicoms_folders and bids_path
     if intersection_bids_list == set():                                             # If there isn't any subject in both list and bids_path
