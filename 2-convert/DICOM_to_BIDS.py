@@ -10,7 +10,6 @@ import datetime
 import shutil
 import re
 from pathlib import Path
-from meta import meta_func, meta_create
 
 # Function to list folders in a given directory
 def list_folders(path):
@@ -25,6 +24,7 @@ def main():
     # Importing meta functions
     root_dir = os.path.dirname(os.path.dirname(__file__))
     sys.path.append(root_dir)
+    from meta import meta_func, meta_create
 
     # Input paths
     meta_create()
