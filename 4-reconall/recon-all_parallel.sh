@@ -4,21 +4,20 @@
 # Script for Running Recon-All with SLURM
 # ============================================
 # Usage:
-#   bash recon-all_parallel.sh -o <output_dir> -i <input_dir> -l <list_file> -p <cores> [-s <session>]
+#   bash recon-all_parallel.sh -o <output_dir> -i <input_dir> -p <cores> [-s <session>]
 #
 # Arguments:
 #   -o, --output_dir    Directory to store processed subjects
 #   -i, --input_dir     BIDS directory containing input data
-#   -l, --list_file     File containing a list of subject IDs
 #   -s, --session       Session identifier (e.g., "01"), only required in longitudinal studies
 #   -p, --pcores        Number of cores to use per task
 # ============================================
 
 echo "Script for running recon-all in parallel"
 
+# Parse command line arguments
 while [[ $# -gt 0 ]]; do
     key="$1"
-
     case $key in
         -o|--output_dir)
         export SUBJECTS_DIR="$2"
@@ -27,11 +26,6 @@ while [[ $# -gt 0 ]]; do
         ;;
         -i|--input_dir)
         export BIDS_FOLDER="$2"
-        shift # past argument
-        shift # past value
-        ;;
-        -l|--list_file)
-        export LIST_FILE="$2"
         shift # past argument
         shift # past value
         ;;
@@ -52,12 +46,10 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Error handling
-
 # Ensure all required variables are set
-if [ -z "$SUBJECTS_DIR" ] || [ -z "$BIDS_FOLDER" ] || [ -z "$LIST_FILE" ] || [ -z "$PCORES" ]; then
+if [ -z "$SUBJECTS_DIR" ] || [ -z "$BIDS_FOLDER" ] || [ -z "$PCORES" ]; then
     echo "Missing arguments. Usage:"
-    echo "bash script.sh -o <output_dir> -i <input_dir> -l <list_file> -p <cores> [-s <session>]"
+    echo "bash script.sh -o <output_dir> -i <input_dir> -p <cores> [-s <session>]"
     exit 1
 fi
 
@@ -76,18 +68,41 @@ if [ ! -d "$BIDS_FOLDER" ]; then
     exit 1
 fi
 
-if [ ! -f "$LIST_FILE" ]; then
-    echo "List file does not exist: $LIST_FILE"
-    exit 1
-fi
+# Generate the list of subjects to be processed
+generate_todo_list() {
+    local input_dir="$1"
+    local output_dir="$2"
+    local todo_list=()
+
+    # Iterate over subjects in the input directory
+    for subj_dir in "$input_dir"/sub-*; do
+        subj_num=${subj_dir##*/sub-}
+
+        # Dynamically determine the session path
+        local ses_dir="$subj_dir/ses-${SESSION}"
+
+        # Check for the session directory and if it does not need processing
+        if [ -d "$ses_dir" ] && [ ! -d "$output_dir/sub-${subj_num}_ses-${SESSION}" ]; then
+            todo_list+=("$subj_num")
+        fi
+    done
+
+    # Save the list as an object
+    LIST_FILE=("${todo_list[@]}")
+    echo "Subjects needing processing: ${LIST_FILE[@]}"
+}
+
+# Call the function to generate the todo list
+generate_todo_list "$BIDS_FOLDER" "$SUBJECTS_DIR"
+
+# Prepare Subject IDs using the LIST_FILE array
+todo_ids=("${LIST_FILE[@]}")
 
 # Configure SLURM Job Settings
-
-# Calculate the number of tasks from the list file
-num_tasks=$(echo $(wc -l < "$LIST_FILE"))
+num_tasks=${#todo_ids[@]}
 num_tasks_idx=$(($num_tasks - 1))
 
-# Determine system capabilities for task distribution (slurm will use, at most, the 90% of the cores)
+# Determine system capabilities for task distribution (slurm will use, at most, 90% of the cores)
 num_cores=$(nproc)
 max_tasks=$(echo "($num_cores * 0.9) / $PCORES" | bc -l | awk '{print int($1)}')
 
@@ -97,22 +112,8 @@ echo "Configured Settings:"
 echo "---------------------"
 echo "Output Directory:       $SUBJECTS_DIR"
 echo "BIDS Directory:         $BIDS_FOLDER"
-echo "Subject List File:      $LIST_FILE"
 echo "Session Number:         $SESSION"
 echo "Cores per Task:         $PCORES"
-
-# Prepare Subject IDs
-
-# Load subject IDs from the list file
-mapfile -t todo_ids < "$LIST_FILE"
-
-# Process each subject ID
-for i in "${!todo_ids[@]}"; do
-  todo_ids[$i]=$(basename "${todo_ids[$i]}")
-done
-
-# Display subjects to be processed
-echo "To Do Subjects:         ${todo_ids[*]}"
 
 # Load necessary software modules
 module load fsl/6.0.4 freesurfer/freesurfer-7.1
@@ -122,20 +123,52 @@ today_date=$(date '+%Y%m%d')
 echo 'Log file will be stored in the current directory.'
 
 # Establish the maximum memory per CPU permitted
-cpu_mem=$(($(free -m | awk 'NR==2{print $2}') / $(nproc)))
+cpu_mem=$(( $(free -m | awk 'NR==2{print $2}') / $(nproc) ))
+
+# Add the sub- prefix to each ID
+prefixed_ids=("${todo_ids[@]/#/sub-}")
+
+# Export the todo_ids_str for the SLURM job
+export todo_ids_str=$(IFS=' '; echo "${prefixed_ids[*]}")
+echo "About to submit SLURM job with todo_ids: $todo_ids_str"
 
 # Submit the SLURM array job
-sbatch <<EOF
+sbatch --export=ALL,todo_ids_str="$todo_ids_str",BIDS_FOLDER="$BIDS_FOLDER",SESSION="$SESSION",PCORES="$PCORES" <<EOF
 #!/bin/bash
-#SBATCH --job-name=recon-alls                                           # Job name
-#SBATCH --ntasks=1                                                      # Number of tasks (analyses) to run
-#SBATCH --array=0-${num_tasks_idx}%${max_tasks}                         # Array of running tasks
-#SBATCH -e ${SUBJECTS_DIR}/recon-all_${today_date}_%A_errorlog.out      # Output filenames for logs
-#SBATCH --cpus-per-task=${PCORES}                                       # CPUs allocated to each task
-#SBATCH --nodes=1                                                       # Nodes allocated to each task
-#SBATCH --partition=batch                                               # Partitions (queue) to submit job to (comma separated)
-#SBATCH --time=5-00:00:00                                               # Time limit for analysis (day-hour:min:sec)
+#SBATCH --job-name=recon-alls
+#SBATCH --ntasks=1
+#SBATCH --array=0-${num_tasks_idx}%${max_tasks}
+#SBATCH -e ${SUBJECTS_DIR}/recon-all_${today_date}_%A_errorlog.out
+#SBATCH --cpus-per-task=${PCORES}
+#SBATCH --nodes=1
+#SBATCH --partition=batch
+#SBATCH --time=5-00:00:00
 #SBATCH --mem-per-cpu=${cpu_mem}M
 
-srun bash recon-all_parallel_aux.sh
+# Load necessary modules
+module load fsl/6.0.4 freesurfer/freesurfer-7.1
+
+# Convert exported todo_ids string back to an array in this sbatch environment
+IFS=' ' read -r -a local_todo_ids <<< "\$todo_ids_str"
+
+# Get the subject id for this task
+subj_id="\${local_todo_ids[\$SLURM_ARRAY_TASK_ID]}"
+echo "Processing subject ID: \$subj_id"
+
+# Determine the input path
+if [ -n "\$SESSION" ]; then
+    input_path="\$BIDS_FOLDER/\$subj_id/ses-\$SESSION"
+else
+    input_path="\$BIDS_FOLDER/\$subj_id"
+fi
+
+# Check if input path exists
+if [ ! -d "\$input_path" ]; then
+    echo "Required files for \${subj_id} not found in \$input_path. Skipping..."
+    exit 1
+fi
+
+# Run the auxiliary script for this subject
+srun bash recon-all_parallel_aux.sh "\$input_path"
+
 EOF
