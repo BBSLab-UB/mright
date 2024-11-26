@@ -25,20 +25,17 @@ list_of_subs_local = [sub for sub in os.listdir(local_bids_path) if sub[:4] == "
 def move_subs_to_destination(source, destination):
     '''This function moves the subfolders of a given subject to the
     destination folder'''
-    if os.path.isdir(source):
-        if os.path.isdir(destination) == False:
-            os.mkdir(destination)
-        if os.listdir(source) == []:
-            warnings.warn('WARNING: Source subject folder {} is empty. Check if it has not been already moved'.format(source))
-        for subdir in os.listdir(source):
-            if (subdir in os.listdir(destination)) == False:
-                command_dir = "cp -r " + os.path.join(source, subdir) + " " + os.path.join(destination, subdir) + " && rm -rf " + os.path.join(source, subdir)
-                os.system(command_dir)
-                print('{} subfolder was SUCCESSFULLY MOVED to {}'.format(subdir, destination))
-            else:
-                warnings.warn('WARNING: Subfolder {} already exists in subject folder {}. Moving was SKIPPED.'.format(subdir, destination))
-    else:
-        warnings.warn('WARNING: Source subject folder {} does not exist. Check if it has not been already moved, or if the subject really exists.'.format(source))
+    if os.path.isdir(destination) == False:
+        os.mkdir(destination)
+    if os.listdir(source) == []:
+        warnings.warn('WARNING: Source subject folder {} is empty. Check if it has not been already moved'.format(source))
+    for subdir in os.listdir(source):
+        if (subdir in os.listdir(destination)) == False:
+            command_dir = "cp -r " + os.path.join(source, subdir) + " " + os.path.join(destination, subdir) + " && rm -rf " + os.path.join(source, subdir)
+            os.system(command_dir)
+            print('{} subfolder was SUCCESSFULLY MOVED to {}'.format(subdir, destination))
+        else:
+            warnings.warn('WARNING: Subfolder {} already exists in subject folder {}. Moving was SKIPPED.'.format(subdir, destination))
 
 # ses-noses tree check
 listdir2 = lambda bids_root:[os.path.basename(str(subdir_p)) for subdir_p in list(Path(bids_root).glob(os.path.join('sub-*','*')))]
