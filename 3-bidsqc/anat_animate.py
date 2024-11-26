@@ -6,6 +6,8 @@
 #######       BBSLab Jun 2024        #######
 ############################################
 
+# Please note that you must run 'DICOMS_BIDS_inventory.py' before running this script
+
 # import libraries
 import nibabel as nib
 from PIL import Image
@@ -21,8 +23,8 @@ from meta import meta_func, meta_create
 
 # input paths
 meta_create()
-bids_path = bids_path = meta_func("bids_out", "your BIDS directory path (from the shared folder)")      # /institut directory
-qc_path = meta_func("qc", "your QC directory path") 
+bids_path = bids_path = meta_func("bids_in", "the path to the (shared) BIDS folder")      # /institut directory
+qc_path = meta_func("qc", "the path to the QC directory") 
 ses = meta_func("ses", "your session label", ispath=False)
 
 if ses == "NOSESSION":
@@ -126,4 +128,3 @@ def qc_exec(img_type):
 
 qc_exec("T1")
 qc_exec("T2")
-

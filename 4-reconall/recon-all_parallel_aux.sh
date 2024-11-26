@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Load subject IDs from the list file
-mapfile -t todo_ids < "$LIST_FILE"
+# Convert the exported todo_ids_str into an array
+IFS=' ' read -r -a todo_ids <<< "$todo_ids_str"
 
 # Iterate over the array of subject IDs
 for id in "${!todo_ids[@]}"; do
@@ -12,7 +12,7 @@ done
 # Retrieve the current subject ID using the SLURM array task ID
 subject_id=${todo_ids[$SLURM_ARRAY_TASK_ID]}
 
-# Construct directory and filename paths based session
+# Construct directory and filename paths based on session
 if [ -z "$SESSION" ]; then
     # No session specified; use subject ID directly
     subdir=${subject_id}

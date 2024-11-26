@@ -15,8 +15,8 @@ from meta import meta_func, meta_create
 
 # we have to move the generated BIDS and metadata to the shared folder
 meta_create()
-local_bids_path = meta_func("bids_in", "your BIDS source (local) directory path")
-destination_bids_path = meta_func("bids_out", "your BIDS destination (shared) directory path")
+local_bids_path = meta_func("bids_out", "your BIDS source (local) directory path")
+destination_bids_path = meta_func("bids_in", "your BIDS destination (shared) directory path")
 
 #subjects to move
 list_of_subs_local = [sub for sub in os.listdir(local_bids_path) if sub[:4] == "sub-"]
@@ -25,17 +25,20 @@ list_of_subs_local = [sub for sub in os.listdir(local_bids_path) if sub[:4] == "
 def move_subs_to_destination(source, destination):
     '''This function moves the subfolders of a given subject to the
     destination folder'''
-    if os.path.isdir(destination) == False:
-        os.mkdir(destination)
-    if os.listdir(source) == []:
-        warnings.warn('WARNING: Source subject folder {} is empty. Check if it has not been already moved'.format(source))
-    for subdir in os.listdir(source):
-        if (subdir in os.listdir(destination)) == False:
-            command_dir = "cp -r " + os.path.join(source, subdir) + " " + os.path.join(destination, subdir) + " && rm -rf " + os.path.join(source, subdir)
-            os.system(command_dir)
-            print('{} subfolder was SUCCESSFULLY MOVED to {}'.format(subdir, destination))
-        else:
-            warnings.warn('WARNING: Subfolder {} already exists in subject folder {}. Moving was SKIPPED.'.format(subdir, destination))
+    if os.path.isdir(source):
+        if os.path.isdir(destination) == False:
+            os.mkdir(destination)
+        if os.listdir(source) == []:
+            warnings.warn('WARNING: Source subject folder {} is empty. Check if it has not been already moved'.format(source))
+        for subdir in os.listdir(source):
+            if (subdir in os.listdir(destination)) == False:
+                command_dir = "cp -r " + os.path.join(source, subdir) + " " + os.path.join(destination, subdir) + " && rm -rf " + os.path.join(source, subdir)
+                os.system(command_dir)
+                print('{} subfolder was SUCCESSFULLY MOVED to {}'.format(subdir, destination))
+            else:
+                warnings.warn('WARNING: Subfolder {} already exists in subject folder {}. Moving was SKIPPED.'.format(subdir, destination))
+    else:
+        warnings.warn('WARNING: Source subject folder {} does not exist. Check if it has not been already moved, or if the subject really exists.'.format(source))
 
 # ses-noses tree check
 listdir2 = lambda bids_root:[os.path.basename(str(subdir_p)) for subdir_p in list(Path(bids_root).glob(os.path.join('sub-*','*')))]
@@ -72,7 +75,7 @@ for unique_file in uniques_local:
     if (unique_file in os.listdir(destination_bids_path)) == False:
         command_file = "cp " + os.path.join(local_bids_path, unique_file) + " " + os.path.join(destination_bids_path, unique_file) + " && rm -f " + os.path.join(local_bids_path, unique_file)
         os.system(command_file)
-        print('{} file was SUCCESSFULLY MOVED to destination folder'.format(unique_file))
+        print('{} file was successfully moved to destination folder'.format(unique_file))
     else:
         print('INFO: {} file already exists in destination folder. Moving was SKIPPED.'.format(unique_file))
         
@@ -112,5 +115,5 @@ else:
                       header=True, index=False, na_rep="n/a")
 
 # remove local_bids_path tree
-os.system("rm -rf " + local_bids_path)
-print(local_bids_path + " local BIDS directory was SUCCESSFULLY REMOVED")
+os.system(f"rm -rf {local_bids_path}/*")
+print(local_bids_path + " local BIDS directory was successfully removed")

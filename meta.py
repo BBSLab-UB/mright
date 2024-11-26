@@ -17,10 +17,11 @@ def meta_create():
         empty_dict = {
                       "dicom": "",
                       "dicom_list": "",
+                      "timepoint": "",
+                      "ses": "",
                       "bids_in": "",
                       "bids_out": "",
                       "heuristic": "",
-                      "ses": "",
                       "recons": "",
                       "bold": "",
                       "qc": ""

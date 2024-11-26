@@ -6,6 +6,13 @@
 ####          BBSLab Jun 2024           ####
 ############################################
 
+"""
+This script inventories the neuroimaging dataset by:
+1. Compiling subject lists from DICOM and BIDS directories.
+2. Generating a CSV report of data presence.
+3. Flagging any discrepancies (e.g., missing or empty folders).
+"""
+
 # import libraries
 import os
 import datetime
@@ -18,11 +25,11 @@ from meta import meta_func, meta_create
 
 # input paths
 meta_create()
-dicoms_path = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)")                            # /institut directory
-bids_path = meta_func("bids_out", "your BIDS directory path (from the shared folder)")                                              # /institut directory
-recons_path = meta_func("recons", "your recon_all directory path", msg2=" (press Enter if it does not exist)")                      # /institut directory, won't be BIDS-compliant, MRI/derivatives/<recons>/sub-XXXX[_ses-XX]
-processed_path = meta_func("bold", "your BOLD preprocessed images directory path", msg2=" (press Enter if it does not exist)")      # /institut directory
-qc_folder = meta_func("qc", "your QC output directory path")                                                                        # /laboratori directory
+dicoms_path = meta_func("dicom", "the path to the DICOMs folder", msg2=" (add TP folder to path if needed)")                            # /institut directory
+bids_path = meta_func("bids_in", "the path to the (shared) BIDS folder")                                              # /institut directory
+recons_path = meta_func("recons", "the path to the recon_all folder", msg2=" (press Enter if it does not exist)")                      # /institut directory, won't be BIDS-compliant, MRI/derivatives/<recons>/sub-XXXX[_ses-XX]
+processed_path = meta_func("bold", "the path to the BOLD preprocessed images directory", msg2=" (press Enter if it does not exist)")      # /institut directory
+qc_folder = meta_func("qc", "the path to QC output directory")                                                                        # /laboratori directory
 ses = meta_func("ses", "your session label", ispath=False)
 
 if ses == "NOSESSION":
