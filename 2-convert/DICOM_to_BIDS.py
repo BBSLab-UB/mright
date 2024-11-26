@@ -21,7 +21,7 @@ def list_folders(path):
     return [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
 
 def main():
-    # Importing meta functions
+    # Import meta functions
     root_dir = os.path.dirname(os.path.dirname(__file__))
     sys.path.append(root_dir)
     from meta import meta_func, meta_create
@@ -30,8 +30,8 @@ def main():
     meta_create()
     dicoms_path = meta_func("dicom", "the path to the DICOMs folder")  # Path to DICOM directories
     timepoint = meta_func("timepoint", "the name of the timepoint folder (e.g., 'TP2')") # Name of timepoint folder
-    bids_path = meta_func("bids_in", "the path to the (shared) BIDS folder")  # Path to BIDS directory
-    temp_bids_path = meta_func("bids_out", "the path to the temporary (local) BIDS output folder")  
+    bids_path = meta_func("bids_in", "the path to the (shared) BIDS folder")  # Path to shared BIDS directory
+    temp_bids_path = meta_func("bids_out", "the path to the temporary (local) BIDS output folder")  # Path to local BIDS directory
     heuristic_file_path = meta_func("heuristic", "your heuristic file path") # Path to heuristic file
 
     # Extract the numerical part of timepoint from above and format 
@@ -50,6 +50,7 @@ def main():
     
     # List of DICOMS in input directory 
     dicoms_folders = set(list_folders(os.path.join(dicoms_path, timepoint)))
+
     # Determine subjects to process in BIDS
     if use_sessions:
         ses_path = "ses-{}".format(ses)
@@ -78,7 +79,7 @@ def main():
                 sub_clean = re.sub(r'[^a-zA-Z0-9]', '', sub)
                 if sub_clean not in bids:
                     todo_dicoms.append(sub)
-            print("Overwriting of " + str(intersection_bids_list) + " was skipped.")
+            print("Skipped overwriting of " + str(intersection_bids_list) + ".")
             intersection_bids_list = set()
 
         # Overwriting: delete BIDS in conflict, convert the entire list    
