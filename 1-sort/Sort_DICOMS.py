@@ -16,10 +16,14 @@ from meta import meta_func, meta_create
 
 # Create metadata and get DICOM directory path
 meta_create()
-dicoms_to_order_folder = meta_func("dicom", "your DICOM directory path", msg2=" (add TP folder to path if needed)")
+dicoms_path = meta_func("dicom", "the path to the DICOMs folder")  # Path to DICOM directories
+timepoint = meta_func("timepoint", "the name of the timepoint folder (e.g., 'TP2')") # Name of timepoint folder
+
+# Combine the DICOM path and the timepoint
+dicoms_to_order_folder = os.path.join(dicoms_path, timepoint)
 list_subjects = os.listdir(dicoms_to_order_folder)
 
-# Filter subjects to process based on the number of folders and files (fewer than 7 folders and more than 0 unsorted files)
+# Filter subjects to process based on the number of folders and files (fewer than 7 folders and more than 0 unsorted files, maintain only those which are not ordered)
 list_subjects_to_do = [
     s for s in list_subjects
     if sum([
