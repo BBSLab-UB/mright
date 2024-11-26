@@ -142,7 +142,7 @@ for subj in todo_dicoms:
                     continue
             if not ses_path in os.listdir(subj_path):
                 print("Starting subject {} conversion".format(subj))
-                command = "heudiconv -d "+ os.path.join(dicoms_path,"{subject}","*","*") + " -o "+ bids_path +" -f "+ heuristic_file_path +" -s "+ subj + " -ss "+ ses +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
+                command = "heudiconv -d "+ os.path.join(dicoms_path,"{subject}","*","*.IMA") + " -o "+ bids_path +" -f "+ heuristic_file_path +" -s "+ subj + " -ss "+ ses +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
                 os.system(command)
             else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
                 with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:
@@ -163,7 +163,7 @@ for subj in todo_dicoms:
                     continue
             if ("sub-{}".format(subj_clean) not in os.listdir(bids_path)) or (subdir_list == []):
                 print("Starting subject {} conversion".format(subj))
-                command = "heudiconv -d "+ os.path.join(dicoms_path,"{subject}","*","*") + " -o "+ bids_path +" -f "+ heuristic_file_path +" -s "+ subj +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
+                command = "heudiconv -d "+ os.path.join(dicoms_path,"{subject}","*","*.IMA") + " -o "+ bids_path +" -f "+ heuristic_file_path +" -s "+ subj +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
                 os.system(command)
             else:                                                                   # this should not happen, todo_dicoms subjects are never in bids_path previously
                 with open(os.path.join(bids_path, "error_heudiconv.txt"), "a") as f:
