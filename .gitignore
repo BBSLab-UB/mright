@@ -6,7 +6,3 @@ git check-ignore -v slurm-*
 
 # Ignore the pycache files
 *.pyc
-
-# For the moment, ignore the list.txt file
-list.txt
-4-reconall/slurm*
