@@ -11,6 +11,14 @@ import shutil
 import re
 from pathlib import Path
 
+# Function to ensure the directory exists before writing to a file
+def ensure_directory_for_file(file_path):
+    """Ensure directory exists before writing to a file"""
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"Created directory: {directory}")
+
 # Function to list folders in a given directory
 def list_folders(path):
     """Return a list of folder (subjects) names in the given directory."""
@@ -114,11 +122,17 @@ def main():
     for subj in todo_dicoms:
         try:
             subj_clean = re.sub(r'[^a-zA-Z0-9]', '', subj)
+
+            # Ensure temp_bids_path exists before creating subject directory
+            if not os.path.exists(temp_bids_path):
+                os.makedirs(temp_bids_path)
+                print(f"Created output directory: {temp_bids_path}")
+
             subj_path = os.path.join(temp_bids_path, f"sub-{subj_clean}")
             if not os.path.exists(subj_path):
                 os.mkdir(subj_path)
             subdir_list = [subdir for subdir in os.listdir(subj_path) if os.path.isdir(os.path.join(subj_path, subdir))]
-            
+
             # For longitudinal studies
             # Heuristic must have keys like t1w=create_key('sub-{subject}/{session}/anat/sub-{subject}_{session}_run-{item:02d}_T1w')
             if use_sessions:
@@ -160,9 +174,13 @@ def main():
                         f.write(str(datetime.datetime.now()) + "\t" + subj + " already processed\n")
         
         except Exception as e:
-            with open(os.path.join(temp_bids_path, "error_heudiconv.txt"), "a") as f:
-                print(f"WARNING: Unable to process subject {subj} due to an error. Logged in error_heudiconv.txt")
-                f.write(str(datetime.datetime.now()) + "\t" + subj + " error: " + str(e) + "\n")
+            try:
+                ensure_directory_for_file(os.path.join(temp_bids_path, "error_heudiconv.txt"))
+                with open(os.path.join(temp_bids_path, "error_heudiconv.txt"), "a") as f:
+                    print(f"WARNING: Unable to process subject {subj} due to an error. Logged in error_heudiconv.txt")
+                    f.write(str(datetime.datetime.now()) + "\t" + subj + " error: " + str(e) + "\n")
+            except Exception as e:
+                print(f"ERROR: Could not log error for subject {subj}: {err}")
             continue
 
     # .bidsignore file in case error_heudiconv.txt is created
