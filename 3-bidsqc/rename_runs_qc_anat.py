@@ -89,12 +89,6 @@ for sub in set(df_qc.subject).intersection(subs_with_ses):
     runs_sub_seq_bidspath = sum(seq+'w.nii.gz' in f for f in os.listdir(
         os.path.join(bids_path,'sub-'+str(sub), 'ses-'+ses, 'anat')))
     
-    # Make sure rating_value is numeric by explicitly converting it
-    df_qc['rating_value'] = pd.to_numeric(df_qc['rating_value'], errors='coerce')
-
-    # Replace any NaN values with a large number
-    df_qc['rating_value'] = df_qc['rating_value'].fillna(10000)
-    
     # Remove entries with missing ratings
     df_qc = df_qc[df_qc.rating_value < 10000]
     
