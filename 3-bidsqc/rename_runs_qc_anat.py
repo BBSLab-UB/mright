@@ -56,15 +56,20 @@ df_qc = pd.read_csv(qc_file, sep=",", dtype=str)
 df_qc['new_run'] = None
 
 # Define rating values mapping for sorting/prioritization
-ratings = {"1": 1,          
-           "2": 3,
-           "2B": 4,
-           "3": 5,
-           "4": 6,
-           "EXCLUDED": 7,    
-           None: 10000,      # Missing values
-           "": 10001,
-           pd.NA: 10002}
+ratings = {
+    "1": 1,          
+    "2": 3,
+    "2a": 3,
+    "2A": 3,
+    "2B": 4,
+    "2b": 4,
+    "3": 5,
+    "4": 6,
+    "EXCLUDED": 7,    
+    None: 10000,      # Missing values
+    "": 10001,
+    pd.NA: 10002
+}
 
 # Convert text ratings to numeric 
 df_qc = df_qc.replace({"rating_value": ratings})
@@ -173,4 +178,3 @@ for sub in set(df_qc.subject).intersection(subs_with_ses):
             # Execute the file renaming commands
             os.system("mv {} {}".format(old_path+".nii.gz", new_path+".nii.gz"))
             os.system("mv {} {}".format(old_path+".json", new_path+".json"))
-    
