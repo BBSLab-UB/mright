@@ -58,11 +58,9 @@ df_qc['new_run'] = None
 # Define rating values mapping for sorting/prioritization
 ratings = {
     "1": 1,          
+    "2A": 2,
     "2": 3,
-    "2a": 3,
-    "2A": 3,
     "2B": 4,
-    "2b": 4,
     "3": 5,
     "4": 6,
     "EXCLUDED": 7,    
