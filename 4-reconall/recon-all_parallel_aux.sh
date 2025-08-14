@@ -27,9 +27,10 @@ fi
 if [ -e "$SUBJECTS_DIR/$subdir" ]; then
     echo "$subject_id is already processed. Skipping..."
 elif [ -e "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz" ]; then
+
     # Run FreeSurfer recon-all command
-    recon-all -all -s "$subject_id" -T2 "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz" -T2pial -i "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T1w.nii.gz" -3T -openmp "$PCORES"
-    
+    recon-all -all -sd "$SUBJECTS_DIR" -s "$subject_id" -T2 "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz" -T2pial -i "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T1w.nii.gz" -3T -openmp "$PCORES"
+
     # Check for errors
     if [ $? -ne 0 ]; then
         echo "Error processing $subject_id. Check FreeSurfer logs for details."

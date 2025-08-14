@@ -4,13 +4,14 @@
 # Script for Running Recon-All with SLURM
 # ============================================
 # Usage:
-#   bash recon-all_parallel.sh -o <output_dir> -i <input_dir> -p <cores> [-s <session>]
+#   bash recon-all_parallel.sh -o <output_dir> -i <input_dir> -p <cores> [-s <session>] [-l <list_file>]
 #
 # Arguments:
 #   -o, --output_dir    Directory to store processed subjects
 #   -i, --input_dir     BIDS directory containing input data
 #   -s, --session       Session identifier (e.g., "01"), only required in longitudinal studies
 #   -p, --pcores        Number of cores to use per task
+#   -l, --list_file     Optional - file containing a list of subject IDs. If not provided, the script will auto-generate a list based on the input directory.
 # ============================================
 
 echo "Script for running recon-all in parallel"
@@ -39,6 +40,10 @@ while [[ $# -gt 0 ]]; do
         shift # past argument
         shift # past value
         ;;
+        -l|--list_file)
+        LIST_FILE="$2"
+        shift; shift
+        ;;
         *) # Unknown option
         echo "Unknown option: $1"
         exit 1
@@ -49,7 +54,7 @@ done
 # Ensure all required variables are set
 if [ -z "$SUBJECTS_DIR" ] || [ -z "$BIDS_FOLDER" ] || [ -z "$PCORES" ]; then
     echo "Missing arguments. Usage:"
-    echo "bash script.sh -o <output_dir> -i <input_dir> -p <cores> [-s <session>]"
+    echo "bash script.sh -o <output_dir> -i <input_dir> -p <cores> [-s <session>] [-l <list_file>]"
     exit 1
 fi
 
@@ -92,11 +97,20 @@ generate_todo_list() {
     echo "Subjects needing processing: ${LIST_FILE[@]}"
 }
 
-# Call the function to generate the todo list
-generate_todo_list "$BIDS_FOLDER" "$SUBJECTS_DIR"
+# Build todo_ids: from list file if provided, else auto-generate
+if [ -n "${LIST_FILE:-}" ]; then
+  [ -f "$LIST_FILE" ] || { echo "List file does not exist: $LIST_FILE"; exit 1; }
+  mapfile -t todo_ids < "$LIST_FILE"
+  echo "Using list file: ${todo_ids[*]}"
+else
+  generate_todo_list "$BIDS_FOLDER" "$SUBJECTS_DIR"
+  todo_ids=("${LIST_FILE[@]}")  # LIST_FILE is the array from generate_todo_list
+fi
 
-# Prepare Subject IDs using the LIST_FILE array
-todo_ids=("${LIST_FILE[@]}")
+# Check if todo_ids is empty
+if [ ${#todo_ids[@]} -eq 0 ]; then
+  echo "No subjects to process."; exit 0
+fi
 
 # Configure SLURM Job Settings
 num_tasks=${#todo_ids[@]}
@@ -118,6 +132,10 @@ echo "Cores per Task:         $PCORES"
 # Load necessary software modules
 module load fsl/6.0.4 freesurfer/freesurfer-7.1
 
+# Create symlink for fsaverage to resolve the issue with missing FG labels (makes sure the fsaverage directory is linked correctly)
+rm -rf "$SUBJECTS_DIR/fsaverage"
+ln -s "$FREESURFER_HOME/subjects/fsaverage" "$SUBJECTS_DIR/fsaverage"
+
 # Capture the current date for log file naming
 today_date=$(date '+%Y%m%d')
 echo 'Log file will be stored in the current directory.'
@@ -125,15 +143,18 @@ echo 'Log file will be stored in the current directory.'
 # Establish the maximum memory per CPU permitted
 cpu_mem=$(( $(free -m | awk 'NR==2{print $2}') / $(nproc) ))
 
-# Add the sub- prefix to each ID
-prefixed_ids=("${todo_ids[@]/#/sub-}")
+# Add the sub- prefix to each ID, if needed
+prefixed_ids=()
+for id in "${todo_ids[@]}"; do
+  [[ "$id" == sub-* ]] && prefixed_ids+=("$id") || prefixed_ids+=("sub-$id")
+done
 
 # Export the todo_ids_str for the SLURM job
 export todo_ids_str=$(IFS=' '; echo "${prefixed_ids[*]}")
 echo "About to submit SLURM job with todo_ids: $todo_ids_str"
 
 # Submit the SLURM array job
-sbatch --export=ALL,todo_ids_str="$todo_ids_str",BIDS_FOLDER="$BIDS_FOLDER",SESSION="$SESSION",PCORES="$PCORES" <<EOF
+sbatch --export=ALL,SUBJECTS_DIR="$SUBJECTS_DIR",todo_ids_str="$todo_ids_str",BIDS_FOLDER="$BIDS_FOLDER",SESSION="$SESSION",PCORES="$PCORES" <<EOF
 #!/bin/bash
 #SBATCH --job-name=recon-alls
 #SBATCH --ntasks=1
@@ -147,6 +168,10 @@ sbatch --export=ALL,todo_ids_str="$todo_ids_str",BIDS_FOLDER="$BIDS_FOLDER",SESS
 
 # Load necessary modules
 module load fsl/6.0.4 freesurfer/freesurfer-7.1
+
+# Create symlink for fsaverage 
+rm -rf "$SUBJECTS_DIR/fsaverage"
+ln -s "$FREESURFER_HOME/subjects/fsaverage" "$SUBJECTS_DIR/fsaverage"
 
 # Convert exported todo_ids string back to an array in this sbatch environment
 IFS=' ' read -r -a local_todo_ids <<< "\$todo_ids_str"
