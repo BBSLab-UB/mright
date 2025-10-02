@@ -2,6 +2,7 @@ import sys
 import os
 from pathlib import Path
 import pandas as pd
+import json
 
 # Add the root directory to the Python path to enable importing from parent directory
 root_dir = os.path.dirname(os.path.dirname(__file__))
@@ -17,8 +18,17 @@ meta_create()
 
 # Get paths from metadata
 bids_path = meta_func("bids_in", "your BIDS destination directory path")
-qc_path = meta_func("qc", "your QC directory path") 
+qc_path = meta_func("qc", "your QC directory path")
+heuristic_file_path = meta_func("heuristic", "your heuristic file path")
 ses = meta_func("ses", "your session label", ispath=False)
+
+# Dynamically load and execute a heuristic module to access configuration settings for processing
+heuristic_module_name = os.path.basename(heuristic_file_path).split('.')[0]
+spec = importlib.util.spec_from_file_location(heuristic_module_name, heuristic_file_path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+delete_scans = module.delete_scans
 
 # Get sequence type (T1 or T2) from user input with validation
 value_ok = False
@@ -72,6 +82,74 @@ ratings = {
 # Convert text ratings to numeric 
 df_qc = df_qc.replace({"rating_value": ratings})
 
+# Functions that regenerate scans.tsv
+
+def normalize_time_string(time_str):
+    try:
+        h, m, s = time_str.strip().split(":")
+        if '.' in s:
+            s, us = s.split(".")
+        else:
+            us = '0'
+        s = s.zfill(2)
+        us = us.ljust(6, '0')
+        return f"{h.zfill(2)}:{m.zfill(2)}:{s}.{us}"
+    except Exception as e:
+        raise ValueError(f"Invalid time format: '{time_str}'") from e
+
+
+def generate_new_scans_tsv(bids_folder, sub, ses):
+    scans_file = os.path.join(bids_folder, sub, ses, f"{sub}_{ses}_scans.tsv")
+    scans_df = pd.read_csv(scans_file, sep="\t")
+    date = scans_df.loc[0, 'acq_time'].split('T')[0]
+
+    path_sub_ses = Path(bids_folder) / sub / ses
+
+    nii_files = list(path_sub_ses.glob("*/*.nii.gz"))
+
+    list_of_niis = [file.parent.name + '/' + file.name for file in nii_files]
+    list_of_acq_times = []
+    list_of_series_times = []
+    list_of_jsons = []
+
+    for nii in nii_files:
+        json_path = str(nii).replace(".nii.gz", ".json")
+        try:
+            with open(json_path, 'r') as json_file:
+                data = json.load(json_file)
+                acq_time_raw = normalize_time_string(data["AcquisitionTime"])
+                acq_time = date + "T" + acq_time_raw
+            
+                try:
+                    series_time = data["global"]["const"]["SeriesTime"]
+                except (KeyError, TypeError):
+                    series_time = pd.NA
+        except (FileNotFoundError):
+            series_time = pd.NA
+            acq_time = pd.NA
+            print(json_path, "not found")
+        
+        json_fn = os.path.basename(json_path)
+
+        list_of_acq_times.append(acq_time)
+        list_of_series_times.append(series_time)
+        list_of_jsons.append(json_fn)
+
+    real_df = pd.DataFrame({'filename': list_of_niis,
+                            'acq_time': list_of_acq_times,
+                            'series_time': list_of_series_times
+                            })
+    
+    if pd.notna(real_df['series_time']).any():
+        real_df.sort_values(by=['acq_time', 'series_time'], inplace=True, ignore_index=True)
+    else:
+        real_df.sort_values(by='acq_time', inplace=True, ignore_index=True)
+
+    if 'series_time' in real_df.columns:
+        real_df.drop(columns='series_time', inplace=True)
+    
+    real_df.to_csv(os.path.join(bids_folder, sub, ses, f"{sub}_{ses}_scans.tsv"), sep="\t", index=False)
+    
 # Process each subject that has the specified session and is in the QC file
 for sub in set(df_qc.subject).intersection(subs_with_ses):
 
@@ -170,3 +248,8 @@ for sub in set(df_qc.subject).intersection(subs_with_ses):
             # Execute the file renaming commands
             os.system("mv {} {}".format(old_path+".nii.gz", new_path+".nii.gz"))
             os.system("mv {} {}".format(old_path+".json", new_path+".json"))
+            
+    
+    # Regenerate scans.tsv file
+    if delete_scans = False:
+        generate_new_scans_tsv(bids_path, 'sub-' + sub, 'ses-' + ses)
