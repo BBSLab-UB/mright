@@ -179,7 +179,7 @@ def main():
                 with open(os.path.join(temp_bids_path, "error_heudiconv.txt"), "a") as f:
                     print(f"WARNING: Unable to process subject {subj} due to an error. Logged in error_heudiconv.txt")
                     f.write(str(datetime.datetime.now()) + "\t" + subj + " error: " + str(e) + "\n")
-            except Exception as e:
+            except Exception as err:
                 print(f"ERROR: Could not log error for subject {subj}: {err}")
             continue
 
