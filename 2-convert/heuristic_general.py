@@ -1,6 +1,6 @@
 ############################################
 #######  GENERAL-USE HEURISTIC FILE  #######
-#######       BBSLab Jun 2024        #######
+#######       BBSLab Oct 2025        #######
 ############################################
 
 import os
@@ -111,22 +111,38 @@ def infotodict(seqinfo):
                     info[rest_bold_ap].append(s.series_id)
                 elif s.image_type[3]=='ND':               
                     info[rest_sbref_ap].append(s.series_id)
-        elif s.protocol_name=='SPECHOGFMA-P':
+        if s.protocol_name=='resting a-p':
+            if s.series_description == 'resting a-p':
+                info[rest_bold_ap].append(s.series_id)
+            elif s.series_description == 'resting a-p_SBRef':
+                info[rest_sbref_ap].append(s.series_id)
+        if s.protocol_name=='SPECHOGFMA-P' or s.protocol_name=='SPECHO GFM A-P':
             info[rest_sefm_ap].append(s.series_id)
-        elif s.protocol_name=='SPECHOGFMP-A':
+        elif s.protocol_name=='SPECHOGFMP-A' or s.protocol_name=='SPECHO GFM P-A':
             info[rest_sefm_pa].append(s.series_id)
             
         #dwi
         if s.protocol_name=='cmrr_mbep2d_diff_99A-P':
             if s.sequence_name=='epse2d1_140':
-                 info[dwi_sefm_ap].append(s.series_id)
+                info[dwi_sefm_ap].append(s.series_id)
             else:
-                 info[dwi_dir_ap].append(s.series_id)
+                info[dwi_dir_ap].append(s.series_id)
+        elif s.protocol_name=='cmrr_mbep2d_diff_99 A-P':
+            if s.series_description=='cmrr_mbep2d_diff_99 A-P_SBRef':
+                info[dwi_sefm_ap].append(s.series_id)
+            elif s.series_description=='cmrr_mbep2d_diff_99 A-P':
+                info[dwi_dir_ap].append(s.series_id)
+
         if s.protocol_name=='cmrr_mbep2d_diff_99P-A':
             if s.sequence_name=='epse2d1_140':
-                 info[dwi_sefm_pa].append(s.series_id)
+                info[dwi_sefm_pa].append(s.series_id)
             else:
-                 info[dwi_dir_pa].append(s.series_id)
+                info[dwi_dir_pa].append(s.series_id)
+        elif s.protocol_name=='cmrr_mbep2d_diff_99 P-A':
+            if s.series_description=='cmrr_mbep2d_diff_99 P-A_SBRef':
+                info[dwi_sefm_pa].append(s.series_id)
+            elif s.series_description=='cmrr_mbep2d_diff_99 P-A':
+                info[dwi_dir_pa].append(s.series_id)
         
         #swi
         if s.protocol_name=='SWI':
