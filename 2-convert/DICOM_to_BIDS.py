@@ -146,7 +146,7 @@ def main():
                         continue
                 if ses_path not in os.listdir(subj_path):
                     print(f"Starting subject {subj} conversion")
-                    command = "heudiconv -d "+ os.path.join(dicoms_path, "TP2", "{subject}", "*", "*") + " -o "+ temp_bids_path +" -f "+ heuristic_file_path +" -s "+ subj + " -ss "+ ses +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
+                    command = "heudiconv -d "+ os.path.join(dicoms_path, timepoint, "{subject}", "*", "*") + " -o "+ temp_bids_path +" -f "+ heuristic_file_path +" -s "+ subj + " -ss "+ ses +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
                     os.system(command)
                 else:
                     with open(os.path.join(temp_bids_path, "error_heudiconv.txt"), "a") as f:
