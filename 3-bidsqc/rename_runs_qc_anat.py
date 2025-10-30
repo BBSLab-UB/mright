@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import pandas as pd
 import json
+import importlib
 
 # Add the root directory to the Python path to enable importing from parent directory
 root_dir = os.path.dirname(os.path.dirname(__file__))
@@ -251,5 +252,5 @@ for sub in set(df_qc.subject).intersection(subs_with_ses):
             
     
     # Regenerate scans.tsv file
-    if delete_scans = False:
+    if delete_scans == False:
         generate_new_scans_tsv(bids_path, 'sub-' + sub, 'ses-' + ses)
