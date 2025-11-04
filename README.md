@@ -1,35 +1,48 @@
 # MRIght
 
-MRIght is a standardized MRI preprocessing and conversion pipeline. It organizes MRI DICOMs, converts them to BIDS format, performs quality control, and runs FreeSurfer `recon-all`.
+MRIght is a standardized MRI preprocessing and conversion pipeline. It organizes DICOMs, converts them to BIDS format, performs quality control, and runs FreeSurfer `recon-all`.
 
 This pipeline allows you to go from raw DICOMs directly from the scanner to BIDS-compliant data with FreeSurfer recon-all outputs. It's designed to be used directly from the terminal.
 
+## Table of Contents
+
+- [Exporting MRI images](#exporting-mri-images)
+- [Step-by-Step Workflow](#step-by-step-workflow)
+  - [Install the virtual environment](#install-the-virtual-environment)
+  - [1. Sort the DICOMs](#1-sort-the-dicoms)
+  - [2. Convert to BIDS](#2-convert-to-bids)
+  - [3. Quality Control (QC)](#3-quality-control-qc)
+  - [4. Run FreeSurfer recon-all](#4-run-freesurfer-recon-all)
+- [License](#license)
+
 ---
-### Exporting the MRI images:
+### Exporting MRI images:
 
 1. Log in using the *usuario predeterminado* (no password required).
 2. Open the patient navigator.
 3. Select the subject you want to export (this automatically selects all images).  
    - Tip: You can sort by project name (e.g., sort by “BBS Lab” subjects first).
-4. Click *Exportar* to open the export window.
+4. Click *Exportar* to open the export pop-up.
 5. In the pop-up:
-   - Choose your hard drive as the “Destino” using the *Examinar* button.
+   - Choose your hard drive as the *Destino* using the *Examinar* button.
    - Under *Propiedades*, set:
      - *Conversión de imagen*: *mejorada*
      - *Hacer anónimo como*: *mantenimiento*
-     - Tick only *hacer anónimo como*
-     - Enter the subject ID (e.g., `4132`).
+     - Tick only the *hacer anónimo como* box
+     - Enter the subject ID (e.g., `4132`)
 
 ---
 ## Step-by-Step Workflow
 
-Install the virtual environment
+### Install the virtual environment
 
 * 
     ```bash
     conda env create -f 0-env_config/linux_environment.yml
     conda activate mright-env
     ```
+
+---
 
 ### 1. Sort the DICOMs
 
@@ -40,7 +53,7 @@ Install the virtual environment
 
     **Prompts for:** DICOM directory, timepoint folder name (e.g., TP2)
 
-    **Output:** Organizes subfolders by subject and sequence.
+    **Output:** Organizes images into subfolders by subject and sequence.
 
 ---
 
@@ -51,7 +64,7 @@ Install the virtual environment
     python 2-convert/DICOM_to_BIDS.py
     ```
 
-    **Prompts for:** Path to DICOM directory, timepoint folder name, path to shared BIDS directory (for determining subjects who have already been processed), path to local (temporary) BIDS output directory, path to project heuristic file (e.g., `2-convert/heuristic_general.py`).
+    **Prompts for:** Path to DICOM directory, timepoint folder name, path to shared BIDS directory (for determining subjects who have already been processed), path to local (temporary) BIDS output directory, path to project heuristic file (i.e., `2-convert/heuristic_general.py`).
 
     **Output:** Creates a BIDS-compliant dataset in the specified temporary output directory.
 
@@ -93,7 +106,7 @@ Install the virtual environment
     python 3-bidsqc/play_anat_gifs.sh
     ```
 
-    **Behavior:** Automatically opens each GIF for manual inspection. After closing a GIF, you’ll be prompted to enter a QC rating and any comments.
+    **Behavior:** Automatically opens each GIF for manual inspection. After closing a GIF, you’ll be prompted to enter a QC rating and any comments. T1 QC ratings: 1, 2A, 2B, 3, or 4 and T2 QC ratings: 1, 2, 3, 4. 
 
     **Output:** Creates a .txt file with all QC ratings.
  
@@ -104,7 +117,7 @@ Install the virtual environment
 
     **Prompts for:** Path to shared BIDS folder, path to QC folder, path to project heuristic file, session label (e.g., 02), sequence to rename (e.g., T1).
 
-    **Output:** Renames BIDS files where run 2 is better than run 1.
+    **Output:** Renames BIDS files when a subject has two runs and run 2 is better than run 1, or when a run is rated as unusable (i.e., rated as a 4).
 
     > **Note:** You need to run this script after doing QC, before running recon-all, to ensure the highest quality runs are used in recon-all.
 
@@ -128,7 +141,7 @@ Install the virtual environment
 
 ---
 
-## License and Citation
+## License 
 
 MRIght © BBSLab, University of Barcelona.  
 
