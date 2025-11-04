@@ -134,7 +134,7 @@ This pipeline allows you to go from raw DICOMs directly from the scanner to BIDS
 
     **Example:**  
     ```bash
-    bash recon-all_parallel.sh -i /pool/guttmann/institut/UB/Superagers/MRI/BIDS -o /pool/guttmann/institut/UB/Superagers/MRI/derivatives/freesurfer-reconall -p 3 -s 02
+    bash 4-reconall/recon-all_parallel.sh -i /pool/guttmann/institut/UB/Superagers/MRI/BIDS -o /pool/guttmann/institut/UB/Superagers/MRI/derivatives/freesurfer-reconall -p 3 -s 02
     ```
 
     **Output:** Generates recon-all outputs in the specified directory.
