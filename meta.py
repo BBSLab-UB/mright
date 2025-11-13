@@ -24,7 +24,8 @@ def meta_create():
                       "heuristic": "",
                       "recons": "",
                       "bold": "",
-                      "qc": ""
+                      "qc": "",
+                      "rename_others_list": ""
                       }
         with open(json_meta, 'a') as file:
             json.dump(empty_dict, file)
@@ -36,6 +37,8 @@ def meta_func(var, msg, msg2="", ispath=True):
     with open(json_meta, 'r') as file:
         data = json.load(file)
     edit_data = False
+    if var not in data:
+        data[var] = ""
     if data[var] != "":
         value_ok = False
         while value_ok == False:

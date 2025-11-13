@@ -117,9 +117,20 @@ This pipeline allows you to go from raw DICOMs directly from the scanner to BIDS
 
     **Prompts for:** Path to shared BIDS folder, path to QC folder, path to project heuristic file, session label (e.g., 02), sequence to rename (e.g., T1).
 
-    **Output:** Renames BIDS files when a subject has two runs and run 2 is better than run 1, or when a run is rated as unusable (i.e., rated as a 4).
+    **Output:** Renames T1/T2 files when a subject has two runs and run 2 is better than run 1, or when a run is rated as unusable (i.e., rated as a 4).
 
     > **Note:** You need to run this script after doing QC, before running recon-all, to ensure the highest quality runs are used in recon-all.
+
+* 
+    ```bash
+    python 3-bidsqc/rename_runs_qc_others.py
+    ```
+
+    **Prompts for:** Path to list of individual files that need to be renamed.
+
+    **Output:** Renames BIDS files that are not T1 nor T2, from a given list that contains their paths.
+
+    > **Note:** This script is relevant for updating the metadata files such that BIDS standard compliance is maintained.
 
 ---
 
