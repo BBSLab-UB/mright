@@ -130,7 +130,7 @@ echo "Session Number:         $SESSION"
 echo "Cores per Task:         $PCORES"
 
 # Load necessary software modules
-module load fsl/5.0.11 freesurfer/freesurfer-6.0.0
+module load fsl/6.0.4 freesurfer/freesurfer-6.0
 
 # Create symlink for fsaverage to resolve the issue with missing FG labels (makes sure the fsaverage directory is linked correctly)
 rm -rf "$SUBJECTS_DIR/fsaverage"
@@ -152,10 +152,6 @@ cat > "$SUBJECTS_DIR/dataset_description.json" <<EOF
       {
         "Name": "FreeSurfer",
         "Version": "6.0.0"
-      },
-      {
-        "Name": "FSL",
-        "Version": "5.0.11"
       }
     ]
   }
@@ -189,7 +185,7 @@ sbatch --export=ALL,SUBJECTS_DIR="$SUBJECTS_DIR",todo_ids_str="$todo_ids_str",BI
 #SBATCH --mem-per-cpu=${cpu_mem}M
 
 # Load necessary modules
-module load fsl/5.0.11 freesurfer/freesurfer-6.0.0
+module load fsl/6.0.4 freesurfer/freesurfer-6.0
 
 # Create symlink for fsaverage 
 rm -rf "$SUBJECTS_DIR/fsaverage"
