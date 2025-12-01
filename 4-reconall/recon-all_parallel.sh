@@ -140,24 +140,6 @@ ln -s "$FREESURFER_HOME/subjects/fsaverage" "$SUBJECTS_DIR/fsaverage"
 today_date=$(date '+%Y%m%d')
 echo "Log file will be stored in the current directory."
 
-# Generate BIDS dataset_description.json
-cat > "$SUBJECTS_DIR/dataset_description.json" <<EOF
-{
-  "Name": "Recon-all Output",
-  "BIDSVersion": "1.10.1",
-  "PipelineDescription": {
-    "Name": "Recon-all Pipeline",
-    "Version": "1.1",
-    "Software": [
-      {
-        "Name": "FreeSurfer",
-        "Version": "6.0.0"
-      }
-    ]
-  }
-}
-EOF
-
 # Establish the maximum memory per CPU permitted
 cpu_mem=$(( $(free -m | awk 'NR==2{print $2}') / $(nproc) ))
 
