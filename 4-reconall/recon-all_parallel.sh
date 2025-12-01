@@ -130,7 +130,7 @@ echo "Session Number:         $SESSION"
 echo "Cores per Task:         $PCORES"
 
 # Load necessary software modules
-module load fsl/6.0.4 freesurfer/freesurfer-7.1
+module load fsl/5.0.11 freesurfer/freesurfer-6.0.0
 
 # Create symlink for fsaverage to resolve the issue with missing FG labels (makes sure the fsaverage directory is linked correctly)
 rm -rf "$SUBJECTS_DIR/fsaverage"
@@ -138,7 +138,29 @@ ln -s "$FREESURFER_HOME/subjects/fsaverage" "$SUBJECTS_DIR/fsaverage"
 
 # Capture the current date for log file naming
 today_date=$(date '+%Y%m%d')
-echo 'Log file will be stored in the current directory.'
+echo "Log file will be stored in the current directory."
+
+# Generate BIDS dataset_description.json
+cat > "$SUBJECTS_DIR/dataset_description.json" <<EOF
+{
+  "Name": "Recon-all Output",
+  "BIDSVersion": "1.10.1",
+  "PipelineDescription": {
+    "Name": "Recon-all Pipeline",
+    "Version": "1.1",
+    "Software": [
+      {
+        "Name": "FreeSurfer",
+        "Version": "6.0.0"
+      },
+      {
+        "Name": "FSL",
+        "Version": "5.0.11"
+      }
+    ]
+  }
+}
+EOF
 
 # Establish the maximum memory per CPU permitted
 cpu_mem=$(( $(free -m | awk 'NR==2{print $2}') / $(nproc) ))
@@ -167,7 +189,7 @@ sbatch --export=ALL,SUBJECTS_DIR="$SUBJECTS_DIR",todo_ids_str="$todo_ids_str",BI
 #SBATCH --mem-per-cpu=${cpu_mem}M
 
 # Load necessary modules
-module load fsl/6.0.4 freesurfer/freesurfer-7.1
+module load fsl/5.0.11 freesurfer/freesurfer-6.0.0
 
 # Create symlink for fsaverage 
 rm -rf "$SUBJECTS_DIR/fsaverage"
