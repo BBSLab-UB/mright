@@ -145,7 +145,7 @@ def infotodict(seqinfo):
                 info[dwi_dir_pa].append(s.series_id)
         
         #swi
-        if s.protocol_name=='SWI':
+        if s.sequence_name=='*swi3d1r':
             if s.image_type[2]=='P':
                 info[swi_phase].append(s.series_id)  
             elif s.image_type[2]=='MNIP':
