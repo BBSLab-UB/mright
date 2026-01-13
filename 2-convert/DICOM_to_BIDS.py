@@ -156,15 +156,8 @@ def main():
             # For non-longitudinal studies
             # Heuristic must have keys like t1w=create_key('sub-{subject}/anat/sub-{subject}_run-{item:02d}_T1w')        
             else:
-                # ses- check: Subj folder must be empty or contain ONLY ses- subfolders
-                if subdir_list:
-                    subdir_check = [ses_subdir for ses_subdir in subdir_list if "ses-" not in ses_subdir[:4]]
-                    if subdir_check != subdir_list:
-                        with open(os.path.join(temp_bids_path, "error_heudiconv.txt"), "a") as f:
-                            print(f"WARNING: Subject {subj} has been skipped due to incorrect session structure. Logged in error_heudiconv.txt")
-                            f.write(str(datetime.datetime.now()) + "\t" + subj + " incorrect session structure\n")
-                        continue
-                if f"sub-{subj_clean}" not in os.listdir(temp_bids_path) or not subdir_list:
+                # check: Subj folder must be empty
+                if not subdir_list:
                     print(f"Starting subject {subj} conversion")
                     command = "heudiconv -d "+ os.path.join(dicoms_path, timepoint, "{subject}", "*", "*") + " -o "+ temp_bids_path +" -f "+ heuristic_file_path +" -s "+ subj +" -c dcm2niix -b --minmeta --overwrite --grouping custom"
                     os.system(command)
