@@ -23,13 +23,25 @@ else
     subsesbids=${subject_id}/ses-${SESSION}
 fi
 
+# Define file paths
+T1_FILE="$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T1w.nii.gz"
+T2_FILE="$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz"
+
 # Check if the subject is already processed
 if [ -e "$SUBJECTS_DIR/$subdir" ]; then
     echo "$subject_id is already processed. Skipping..."
-elif [ -e "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz" ]; then
-
-    # Run FreeSurfer recon-all command
-    recon-all -all -sd "$SUBJECTS_DIR" -s "$subject_id" -T2 "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T2w.nii.gz" -T2pial -i "$BIDS_FOLDER/$subsesbids/anat/${subdir}_run-01_T1w.nii.gz" -3T -openmp "$PCORES"
+# Check if the T1 file exists
+elif [ -e "$T1_FILE" ]; then
+    # If T1 exists, check if T2 exists
+    if [ -e "$T2_FILE" ]; then
+        # If T2 exists, run recon-all with T2 refinement
+        echo "Found T1 and T2 for $subject_id. Running recon-all with T2 refinement..."
+        recon-all -all -sd "$SUBJECTS_DIR" -s "$subject_id" -T2 "$T2_FILE" -T2pial -i "$T1_FILE" -3T -openmp "$PCORES"
+    else
+        # If T2 does not exist, run standard recon-all without T2
+        echo "Found T1 only for $subject_id. Running recon-all without T2..."
+        recon-all -all -sd "$SUBJECTS_DIR" -s "$subject_id" -i "$T1_FILE" -3T -openmp "$PCORES"
+    fi
 
     # Check for errors
     if [ $? -ne 0 ]; then
