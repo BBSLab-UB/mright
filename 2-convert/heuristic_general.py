@@ -1,6 +1,6 @@
 ############################################
 #######  GENERAL-USE HEURISTIC FILE  #######
-#######       BBSLab Oct 2025        #######
+#######       BBSLab Nov 2026        #######
 ############################################
 
 import os
@@ -16,7 +16,7 @@ else:
     session_dir = "/{session}"
     session_str = "_{session}"
 
-grouping = 'studyUID'                   # change it to 'all' if Study Identifier UID error appears
+grouping = 'studyUID'                   # default is 'studyUID', change it to 'all' if Study Identifier UID error appears
 
 delete_scans = False
 delete_events = True
@@ -44,6 +44,7 @@ def infotodict(seqinfo):
     t1w=create_key('sub-{subject}'+session_dir+'/anat/sub-{subject}'+session_str+'_run-{item:02d}_T1w')
     t2w=create_key('sub-{subject}'+session_dir+'/anat/sub-{subject}'+session_str+'_run-{item:02d}_T2w')
     flair=create_key('sub-{subject}'+session_dir+'/anat/sub-{subject}'+session_str+'_run-{item:02d}_FLAIR')
+    angio_tof=create_key('sub-{subject}'+session_dir+'/anat/sub-{subject}'+session_str+'_run-{item:02d}_angio')
     
     rest_bold_ap=create_key('sub-{subject}'+session_dir+'/func/sub-{subject}'+session_str+'_task-rest_dir-ap_run-{item:02d}_bold')
     rest_sbref_ap=create_key('sub-{subject}'+session_dir+'/func/sub-{subject}'+session_str+'_task-rest_dir-ap_run-{item:02d}_sbref')
@@ -56,8 +57,9 @@ def infotodict(seqinfo):
     swi_comb=create_key('sub-{subject}'+session_dir+'/swi/sub-{subject}'+session_str+'_run-{item:02d}_swi')
     swi_mip=create_key('sub-{subject}'+session_dir+'/swi/sub-{subject}'+session_str+'_run-{item:02d}_minIP')
     
-    pcasl_vol_ap=create_key('sub-{subject}'+session_dir+'/perf/sub-{subject}'+session_str+'_acq-pcasl_dir-ap_run-{item:02d}_asl') 
-    pcasl_vol_pa=create_key('sub-{subject}'+session_dir+'/perf/sub-{subject}'+session_str+'_acq-pcasl_dir-pa_run-{item:02d}_asl')
+    pcasl_vol_ap=create_key('sub-{subject}'+session_dir+'/perf/sub-{subject}'+session_str+'_acq-pcasl2d_dir-ap_run-{item:02d}_asl')
+    pcasl_3d=create_key('sub-{subject}'+session_dir+'/perf/sub-{subject}'+session_str+'_acq-pcasl3d_run-{item:02d}_asl')
+    pasl=create_key('sub-{subject}'+session_dir+'/perf/sub-{subject}'+session_str+'_acq-pasl_run-{item:02d}_asl')
 
     rest_sefm_ap=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-restsefm_dir-ap_run-{item:02d}_epi')
     rest_sefm_pa=create_key('sub-{subject}'+session_dir+'/fmap/sub-{subject}'+session_str+'_acq-restsefm_dir-pa_run-{item:02d}_epi')
@@ -72,6 +74,7 @@ def infotodict(seqinfo):
                     t1w:[],
                     t2w:[],
                     flair:[],
+                    angio_tof:[],
                     rest_bold_ap:[],
                     rest_sbref_ap:[],
                     dwi_dir_ap:[],
@@ -81,13 +84,14 @@ def infotodict(seqinfo):
                     swi_comb:[],
                     swi_mip:[],
                     pcasl_vol_ap:[],
-                    pcasl_vol_pa:[],
                     rest_sefm_ap:[],
                     rest_sefm_pa:[],
                     dwi_sefm_ap:[],
                     dwi_sefm_pa:[],
                     pcasl_sefm_ap:[],
                     pcasl_sefm_pa:[],
+                    pcasl_3d:[],
+                    pasl:[],
              }
 
     # append DICOMS to dictionary keys --> to change in function of protocol_name,
@@ -95,77 +99,88 @@ def infotodict(seqinfo):
     # test heudiconv can be done by 'heudiconv --files <dicoms_path>/<subject>/*/*.IMA -o <bids_path>/ -f convertall -s <subject> -c none' on command
     
     for s in seqinfo:
-       
-        #anat
-        if s.protocol_name=='T1w_MPR':
-            info[t1w].append(s.series_id)   
-        if s.protocol_name=='T2w_SPC':
-            info[t2w].append(s.series_id) 
-        if s.protocol_name=='t2_tse_dark-fluid_tra_3mm':
-            info[flair].append(s.series_id)
+        if s.image_type[0] == 'ORIGINAL' and s.image_type[1] == 'PRIMARY':
             
-        #resting
-        if s.protocol_name=='restinga-p':
-            if s.sequence_name=='epfid2d1_104':
-                if s.image_type[3]=='MB':             
+            #anat
+            if s.protocol_name=='T1w_MPR':
+                info[t1w].append(s.series_id)   
+            if s.protocol_name=='T2w_SPC':
+                info[t2w].append(s.series_id) 
+            if s.protocol_name=='t2_tse_dark-fluid_tra_3mm':
+                info[flair].append(s.series_id)
+            if s.protocol_name=='tof_nuevo':
+                if s.image_type[2]=='M':
+                    info[angio_tof].append(s.series_id)
+                
+            #resting
+            if s.protocol_name=='restinga-p':
+                if s.sequence_name=='epfid2d1_104':
+                    if s.image_type[3]=='MB':             
+                        info[rest_bold_ap].append(s.series_id)
+                    elif s.image_type[3]=='ND':               
+                        info[rest_sbref_ap].append(s.series_id)
+            elif s.protocol_name=='resting a-p':  #XA60
+                if s.series_description == 'resting a-p':
                     info[rest_bold_ap].append(s.series_id)
-                elif s.image_type[3]=='ND':               
+                elif s.series_description == 'resting a-p_SBRef':
                     info[rest_sbref_ap].append(s.series_id)
-        if s.protocol_name=='resting a-p':
-            if s.series_description == 'resting a-p':
-                info[rest_bold_ap].append(s.series_id)
-            elif s.series_description == 'resting a-p_SBRef':
-                info[rest_sbref_ap].append(s.series_id)
-        if s.protocol_name=='SPECHOGFMA-P' or s.protocol_name=='SPECHO GFM A-P':
-            info[rest_sefm_ap].append(s.series_id)
-        elif s.protocol_name=='SPECHOGFMP-A' or s.protocol_name=='SPECHO GFM P-A':
-            info[rest_sefm_pa].append(s.series_id)
+
+            if s.protocol_name=='SPECHOGFMA-P' or s.protocol_name=='SPECHO GFM A-P':
+                info[rest_sefm_ap].append(s.series_id)
+            elif s.protocol_name=='SPECHOGFMP-A' or s.protocol_name=='SPECHO GFM P-A':
+                info[rest_sefm_pa].append(s.series_id)
+                
+            #dwi
+            if s.protocol_name=='cmrr_mbep2d_diff_99A-P':
+                if s.sequence_name=='epse2d1_140':
+                    info[dwi_sefm_ap].append(s.series_id)
+                else:
+                    info[dwi_dir_ap].append(s.series_id)
+            elif s.protocol_name=='cmrr_mbep2d_diff_99 A-P':    #XA60
+                if s.series_description=='cmrr_mbep2d_diff_99 A-P_SBRef':
+                    info[dwi_sefm_ap].append(s.series_id)
+                elif s.series_description=='cmrr_mbep2d_diff_99 A-P':
+                    info[dwi_dir_ap].append(s.series_id)
+
+            if s.protocol_name=='cmrr_mbep2d_diff_99P-A':
+                if s.sequence_name=='epse2d1_140':
+                    info[dwi_sefm_pa].append(s.series_id)
+                else:
+                    info[dwi_dir_pa].append(s.series_id)
+            elif s.protocol_name=='cmrr_mbep2d_diff_99 P-A':    #XA60
+                if s.series_description=='cmrr_mbep2d_diff_99 P-A_SBRef':
+                    info[dwi_sefm_pa].append(s.series_id)
+                elif s.series_description=='cmrr_mbep2d_diff_99 P-A':
+                    info[dwi_dir_pa].append(s.series_id)
             
-        #dwi
-        if s.protocol_name=='cmrr_mbep2d_diff_99A-P':
-            if s.sequence_name=='epse2d1_140':
-                info[dwi_sefm_ap].append(s.series_id)
-            else:
-                info[dwi_dir_ap].append(s.series_id)
-        elif s.protocol_name=='cmrr_mbep2d_diff_99 A-P':
-            if s.series_description=='cmrr_mbep2d_diff_99 A-P_SBRef':
-                info[dwi_sefm_ap].append(s.series_id)
-            elif s.series_description=='cmrr_mbep2d_diff_99 A-P':
-                info[dwi_dir_ap].append(s.series_id)
+            #swi
+            if s.sequence_name=='*swi3d1r':
+                if s.image_type[2]=='P':
+                    info[swi_phase].append(s.series_id)  
+                elif s.image_type[2]=='MNIP':
+                    info[swi_mip].append(s.series_id)
+                elif s.image_type[3]=='SWI':
+                    info[swi_comb].append(s.series_id)
+                else:
+                    info[swi_mag].append(s.series_id)
 
-        if s.protocol_name=='cmrr_mbep2d_diff_99P-A':
-            if s.sequence_name=='epse2d1_140':
-                info[dwi_sefm_pa].append(s.series_id)
-            else:
-                info[dwi_dir_pa].append(s.series_id)
-        elif s.protocol_name=='cmrr_mbep2d_diff_99 P-A':
-            if s.series_description=='cmrr_mbep2d_diff_99 P-A_SBRef':
-                info[dwi_sefm_pa].append(s.series_id)
-            elif s.series_description=='cmrr_mbep2d_diff_99 P-A':
-                info[dwi_dir_pa].append(s.series_id)
-        
-        #swi
-        if s.sequence_name=='*swi3d1r':
-            if s.image_type[2]=='P':
-                info[swi_phase].append(s.series_id)  
-            elif s.image_type[2]=='MNIP':
-                info[swi_mip].append(s.series_id)
-            elif s.image_type[3]=='SWI':
-                info[swi_comb].append(s.series_id)
-            else :
-                info[swi_mag].append(s.series_id)
-
-        #pCASL
-        if s.protocol_name=='pCASL_AP': 
+            #mbpCASL
             if s.sequence_name=='epse2d1_86':
-                info[pcasl_sefm_ap].append(s.series_id)
+                if s.protocol_name=='pCASL_AP' or s.protocol_name=='2dPCASL_ISOHR_SESM_AP':
+                    info[pcasl_sefm_ap].append(s.series_id)
+                elif s.protocol_name=='pCASL_PA' or s.protocol_name=='2dPCASL_ISOHR_SESM_PA': 
+                    info[pcasl_sefm_pa].append(s.series_id)
+
             elif s.sequence_name=='mbPCASL2d1_86':
                 info[pcasl_vol_ap].append(s.series_id)
-        if s.protocol_name=='pCASL_PA': 
-            if s.sequence_name=='epse2d1_86':
-                info[pcasl_sefm_pa].append(s.series_id)
-            elif s.sequence_name=='mbPCASL2d1_86':
-                info[pcasl_vol_pa].append(s.series_id)
+
+            #(TGSE)pCASL
+            if s.protocol_name=='pcasl_3d_bs_tgse_mv_asl_nuevo':
+                info[pcasl_3d].append(s.series_id)
+
+            #PASL
+            if s.protocol_name=='asl_2d_tra':
+                info[pasl].append(s.series_id)
 
     return info
 

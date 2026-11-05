@@ -1,6 +1,6 @@
 ############################################
 #  SCRIPT FOR DICOM SORTING - XA60 UPDATED #
-#             BBSLab Oct 2025              #
+#             BBSLab Nov 2026              #
 ############################################
 
 # Import libraries
@@ -89,6 +89,7 @@ timepoint = meta_func("timepoint", "the name of the timepoint folder (e.g., 'TP2
 # Map for DICOM tags and directories
 tag2directory = {
     '*fl2d1': 'Localizer',
+    '*fl3d1_ns': 'Localizer',
     '*tfl3d1_16ns': 'T1w_MPR',
     '*tfl3d1_256ns': 'T1w_MPR',
     '*spc_314ns': 'T2w_SPC',
@@ -102,8 +103,10 @@ tag2directory = {
     'cmrr_mbep2d_bold': 'RESTING',
     'cmrr_mbep2d_se': 'RESTING',
     'tgse_mv3d1_2480': 'ASL_siemens',
+    'tgse_mv3d1_2604': 'ASL_siemens',
     'mbPCASL2d1_86': 'pCASL',
     'epse2d1_86': 'pCASL',
+    '*epfid2d1_64': 'PASL',
     '*fl3d1r_t70': 'TOF',
     '*swi3d1r': 'SWI'
 }

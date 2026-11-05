@@ -51,11 +51,11 @@ dicoms_ls = os.listdir(dicoms_path)
 dicoms = ["sub-" + sub for sub in dicoms_ls if (not sub in ["._.DS_Store", ".DS_Store"])]    # subs that have dicoms of this session
 
 recons_ls = os.listdir(recons_path)
-recons = [sub for sub in recons_ls if (not sub in ["._.DS_Store", ".DS_Store"] and (not "_" in sub) and "sub-" in sub and seslabel in sub)] # if session exists
+recons = [sub.split("_")[0] for sub in recons_ls if (not sub in ["._.DS_Store", ".DS_Store"] and "sub-" in sub and seslabel in sub)] # if session exists
 
 processed_ls = os.listdir(processed_path)
-mni    = [sub for sub in processed_ls if os.path.isfile(os.path.join(processed_path, sub, seslabel, 'func', 'MNI_2mm', sub+'_'+seslabel_dash+"task-rest_dir-ap_run-{item:02d}_bold_MNI-space.nii.gz"))] 
-native = [sub for sub in processed_ls if os.path.isfile(os.path.join(processed_path, sub, seslabel, 'func', 'native_T1', sub+'_'+seslabel_dash+"task-rest_dir-ap_run-{item:02d}_bold_T1-space.nii.gz"))] 
+mni    = [sub for sub in processed_ls if os.path.isfile(os.path.join(processed_path, sub, 'MNI_2mm', sub+'_'+seslabel+"_run-01_rest_bold_ap_MNI-space.nii.gz"))] 
+native = [sub for sub in processed_ls if os.path.isfile(os.path.join(processed_path, sub, 'native_T1', sub+'_'+seslabel+"_run-01_rest_bold_ap_T1-space.nii.gz"))] 
 
 # check if MNI == Native
 mni_notnative = list(set(mni).difference(set(native)))
@@ -167,7 +167,7 @@ with open(output_path, 'w') as f:
             f.write("0," * len(bids_header_list))
         
         # recon-all
-        simple_write(f,os.path.join(recons_path,sub + "_"+seslabel))
+        simple_write(f,os.path.join(recons_path,sub + "_"+seslabel + "_run-01"))
         
         # bold preprocessed
         if (sub in mni) and (sub in native):
